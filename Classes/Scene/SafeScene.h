@@ -22,16 +22,23 @@
 
 USING_NS_CC;
 
+
 class SafeScene :public cocos2d::Scene
 {
 public:
 	static Scene* CreateScene();
+
+	void update(float dt) override;
 
 	virtual bool init();
 
 	void menuCloseCallback(Ref* pSender);
 
 	CREATE_FUNC(SafeScene);//automatically call the create(),init(),and autorelease()
+
+private:
+	Knight knight;
+
 
 };
 

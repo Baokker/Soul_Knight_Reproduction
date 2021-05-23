@@ -11,8 +11,10 @@ USING_NS_CC;
 #ifndef __KNIGHT_H__
 #define __KNIGHT_H__
 
+#include<map>
 #include<cocos2d.h>
-#include<Scene/SafeScene.h>
+//#include<Scene/SafeScene.h> this will cause two header files contain each other!
+
 class Knight : public Node//reorginaze the arrangement of Knight
 {
 	friend class SafeScene;
@@ -27,7 +29,9 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		* @function create a sprite of Knight
 		*/
 		virtual bool init();
-
+		void setKnightKeyboardListener();
+		void MoveinSafeScene();
+		
 	private:
 		int MaxHP = 5;
 		int HP = 5;
@@ -35,8 +39,10 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		int MP = 200;
 		int MaxShield = 5;
 		int Shield = 5;
-		int money = 0;
-		Sprite* sprite = nullptr;
+		int Money = 0;
+		int MoveSpeed = 5;
+		std::map<EventKeyboard::KeyCode, bool> KeyMap;
+		Sprite* sprite;
 
 };
 #endif

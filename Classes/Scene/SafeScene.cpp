@@ -7,9 +7,10 @@
 
 #include<iostream>
 #include<string>
+#include<map>
 #include "ui/CocosGUI.h"
 #include"SafeScene.h"
-#include"Character/Knight.h"
+#include"..//Character/knight.h"
 
 using namespace std;
 USING_NS_CC; //equals to using namespace cocos2d
@@ -27,13 +28,17 @@ static void problemLoading(string filename)
 	cerr << "Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n";
 }
 
+void SafeScene::update(float delta)
+{
+
+}
+
 bool SafeScene::init()
 {
 	if (!Scene::init())
 		return false;//check super init
 
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
 	//background
 	auto SafeBackground = Sprite::create("Scene\\SafeScene.jpg");
@@ -47,11 +52,32 @@ bool SafeScene::init()
 	}
 
 	//knight
-	//in this file the movement of knight has nothing with its own move function
-	Knight knight;
+	//in this file the movement of knight has nothing with its move function in the battle room
 	knight.init();
-	this->addChild(knight.sprite,1);
+	this->addChild(knight.sprite, 1);
 
+	auto KnightEventListenerKeyboard = EventListenerKeyboard::create();
+
+	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
+	{
+		knight.KeyMap[keycode] = true;
+		if (keycode == EventKeyboard::KeyCode::KEY_W || keycode == EventKeyboard::KeyCode::KEY_CAPITAL_W )
+		{
+			auto moveby = MoveBy::create(0.1, Vec2(0, 5));
+			knight.sprite->runAction(moveby);
+		}
+
+	};
+	/*
+	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
+	{
+		knight.KeyMap[keycode] = false;
+	};	
+	*/
+
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, this);//forget this sentence!!for it I stopped for a week!!
+
+	this->scheduleUpdate();
 	return true;
 }
 
