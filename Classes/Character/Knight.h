@@ -5,13 +5,11 @@
 * @modified name date
 */
 
-
 USING_NS_CC;
 
 #ifndef __KNIGHT_H__
 #define __KNIGHT_H__
 
-#include<map>
 #include<cocos2d.h>
 //#include<Scene/SafeScene.h> this will cause two header files contain each other!
 
@@ -30,8 +28,7 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		*/
 		virtual bool init();
 		void setKnightKeyboardListener();
-		void MoveinSafeScene();
-		
+		~Knight();
 	private:
 		int MaxHP = 5;
 		int HP = 5;
@@ -43,10 +40,8 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		int MoveSpeed = 10;
 		int MoveSpeedX = 0;
 		int MoveSpeedY = 0;
-		Animate* MoveUpinSafeScene();
-		Animate* MoveDowninSafeScene();
-		Animate* MoveLeftinSafeScene();
-		Animate* MoveRightinSafeScene();
+		bool isMoving = false;
+		Animate* MoveAnimate;
 		Sprite* sprite;
 
 };

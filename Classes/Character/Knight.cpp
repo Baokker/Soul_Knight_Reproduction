@@ -1,5 +1,5 @@
 /*
-* @file   Knight.h
+* @file   Knight.cpp
 * @author fbc
 * @date   2021/5/15
 * @modified name date
@@ -7,6 +7,7 @@
 
 #include<cocos2d.h>
 #include<cmath>
+#include<string>
 #include"Knight.h"
 #include"..//Const.h"
 
@@ -17,10 +18,14 @@ static void problemLoading(const char* filename)
 	log("Error while loading:%s\n",filename);
 }
 
+Knight::~Knight()
+{
+	MoveAnimate->release();
+}
+
 void Knight::setKnightKeyboardListener()
 {
 	auto KnightEventListenerKeyboard = EventListenerKeyboard::create();
-	
 	
 	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
 	{
@@ -29,25 +34,45 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_W:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
-				this->MoveSpeedY = MoveSpeed;
+				MoveSpeedY = MoveSpeed;
+				if (!isMoving)
+				{
+					sprite->runAction(MoveAnimate);
+					isMoving = true;
+				}
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_A:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 			{
-				this->MoveSpeedX = -MoveSpeed;
+				MoveSpeedX = -MoveSpeed;
+				if (!isMoving)
+				{
+					sprite->runAction(MoveAnimate);
+					isMoving = true;
+				}
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_S:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 			{
-				this->MoveSpeedY = -MoveSpeed;
+				MoveSpeedY = -MoveSpeed;
+				if (!isMoving)
+				{
+					sprite->runAction(MoveAnimate);
+					isMoving = true;
+				}
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_D:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 			{
-				this->MoveSpeedX = MoveSpeed;
+				MoveSpeedX = MoveSpeed;
+				if (!isMoving)
+				{
+					sprite->runAction(MoveAnimate);
+					isMoving = true;
+				}
 				break;
 			}
 		}
@@ -59,25 +84,33 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_W:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
-				this->MoveSpeedY = 0;
+				MoveSpeedY = 0;
+				sprite->stopAllActions();
+				isMoving = false;
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_A:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 			{
-				this->MoveSpeedX = 0;
+				MoveSpeedX = 0;
+				sprite->stopAllActions();
+				isMoving = false;
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_S:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 			{
-				this->MoveSpeedY = 0;
+				MoveSpeedY = 0;
+				sprite->stopAllActions();
+				isMoving = false;
 				break;
 			}
 			case EventKeyboard::KeyCode::KEY_D:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 			{
-				this->MoveSpeedX = 0;
+				MoveSpeedX = 0;
+				sprite->stopAllActions();
+				isMoving = false;
 				break;
 			}
 		}
@@ -91,30 +124,10 @@ void Knight::setKnightKeyboardListener()
 
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, sprite);//forget this sentence!!for it I stopped for a week!!
 }
-/*
-Animate* MoveUpinSafeScene()
-{
-	return Animate::create();
-}
-
-Animate* MoveDowninSafeScene()
-{
-	return Animate::create();
-}
-
-Animate* MoveLeftinSafeScene()
-{
-	return Animate::create();
-}
-
-Animate* MoveRightinSafeScene()
-{
-	return Animate::create();
-}
-*/
 
 bool Knight::init()
 {
+	//init
 	sprite= Sprite::create("Character\\Knight.png");
 	if (sprite == NULL)
 	{
@@ -126,21 +139,25 @@ bool Knight::init()
 
 	sprite->setPosition(visibleSize.width / 2, visibleSize.height / 2);
 
+	//keyboard
 	setKnightKeyboardListener();
+
+	//animate
+	auto MoveAnimation = Animation::create();
+	std::string filename;
+	for (int i = 1; i <= 2; i++)
+	{
+		filename = "Character\\Knight" + std::to_string(i) + ".png";
+		MoveAnimation->addSpriteFrameWithFile(filename);
+	}
+	MoveAnimation->setLoops(-1);
+	MoveAnimation->setDelayPerUnit(0.1);
+	MoveAnimation->setRestoreOriginalFrame(true);
+	MoveAnimate = Animate::create(MoveAnimation);
+	MoveAnimate->retain();
 
 	return true;
 }
 
-void Knight::MoveinSafeScene()
-{
-	/*
-	float duration = 0.1;
-	if (sprite->getPositionY() + MoveSpeed > FRAME_SIZE_Y)
-		sprite->setPosition(sprite->getPositionX(), FRAME_SIZE_Y);
-	else
-		sprite->setPosition(sprite->getPositionX(), sprite->getPositionY() + MoveSpeed);	
-	*/
-
-}
 
 

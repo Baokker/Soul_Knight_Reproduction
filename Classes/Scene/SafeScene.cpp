@@ -30,18 +30,21 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
-
+	/*
+	let fbc explain how to make the knight move. it has two parts:
+	firstly,create a keyboardlistener in the class Knight and initialize it, so when the player presses keys like wasd, it will set the speed and play the animation(reset to zero when released)
+	then,in this update function which will be executed sixty times per second, the computer check the speed and setposition every frame.
+	almost every move goes like that 
+	*/
 	auto visiblesize = Director::getInstance()->getWinSize();
 	if (knight.sprite->getPositionX() + knight.MoveSpeedX<0 || knight.sprite->getPositionX() + knight.MoveSpeedX>visiblesize.width)
 		knight.MoveSpeedX = 0;
 	if (knight.sprite->getPositionY() + knight.MoveSpeedY<0 || knight.sprite->getPositionY() + knight.MoveSpeedY>visiblesize.height)
 		knight.MoveSpeedY = 0;	
-	
 
 	//knight.sprite->setPosition(knight.sprite->getPositionX() + 1, knight.sprite->getPositionY() + 1);
 	knight.sprite->setPosition(knight.sprite->getPositionX() + knight.MoveSpeedX, knight.sprite->getPositionY() + knight.MoveSpeedY);
 	//knight.sprite->runAction(MoveBy::create(0.05, Vec2(knight.MoveSpeedX, knight.MoveSpeedY)));
-
 }
 
 bool SafeScene::init()
@@ -71,7 +74,6 @@ bool SafeScene::init()
 	this->scheduleUpdate();
 	return true;
 }
-
 
 void SafeScene::menuCloseCallback(Ref* pSender)
 {

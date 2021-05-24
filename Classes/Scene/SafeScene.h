@@ -22,7 +22,6 @@
 
 USING_NS_CC;
 
-
 class SafeScene :public cocos2d::Scene
 {
 public:
