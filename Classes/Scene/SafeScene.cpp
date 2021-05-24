@@ -30,6 +30,18 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
+
+	auto visiblesize = Director::getInstance()->getWinSize();
+	if (knight.sprite->getPositionX() + knight.MoveSpeedX<0 || knight.sprite->getPositionX() + knight.MoveSpeedX>visiblesize.width)
+		knight.MoveSpeedX = 0;
+	if (knight.sprite->getPositionY() + knight.MoveSpeedY<0 || knight.sprite->getPositionY() + knight.MoveSpeedY>visiblesize.height)
+		knight.MoveSpeedY = 0;	
+	
+
+	//knight.sprite->setPosition(knight.sprite->getPositionX() + 1, knight.sprite->getPositionY() + 1);
+	knight.sprite->setPosition(knight.sprite->getPositionX() + knight.MoveSpeedX, knight.sprite->getPositionY() + knight.MoveSpeedY);
+	//knight.sprite->runAction(MoveBy::create(0.05, Vec2(knight.MoveSpeedX, knight.MoveSpeedY)));
+
 }
 
 bool SafeScene::init()
@@ -53,8 +65,9 @@ bool SafeScene::init()
 	//knight
 	//in this file the movement of knight has nothing with its move function in the battle room
 	knight.init();
+
 	this->addChild(knight.sprite, 1);
-	knight.setKnightKeyboardListener();
+
 	this->scheduleUpdate();
 	return true;
 }

@@ -40,7 +40,9 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		int MaxShield = 5;
 		int Shield = 5;
 		int Money = 0;
-		int MoveSpeed = 5;
+		int MoveSpeed = 10;
+		int MoveSpeedX = 0;
+		int MoveSpeedY = 0;
 		Animate* MoveUpinSafeScene();
 		Animate* MoveDowninSafeScene();
 		Animate* MoveLeftinSafeScene();
