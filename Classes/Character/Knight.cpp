@@ -19,8 +19,44 @@ static void problemLoading(const char* filename)
 void Knight::setKnightKeyboardListener()
 {
 
+	auto KnightEventListenerKeyboard = EventListenerKeyboard::create();
+
+	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
+	{
+		if (keycode == EventKeyboard::KeyCode::KEY_W || keycode == EventKeyboard::KeyCode::KEY_CAPITAL_W)
+		{
+			
+			if (sprite->getPositionY() + MoveSpeed > FRAME_SIZE_Y)
+				sprite->setPosition(sprite->getPositionX(), FRAME_SIZE_Y);
+			else
+				sprite->setPosition(sprite->getPositionX(), sprite->getPositionY() + MoveSpeed);
+		}
+
+	};
+
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, sprite);//forget this sentence!!for it I stopped for a week!!
+}
+/*
+Animate* MoveUpinSafeScene()
+{
+	return Animate::create();
 }
 
+Animate* MoveDowninSafeScene()
+{
+	return Animate::create();
+}
+
+Animate* MoveLeftinSafeScene()
+{
+	return Animate::create();
+}
+
+Animate* MoveRightinSafeScene()
+{
+	return Animate::create();
+}
+*/
 bool Knight::init()
 {
 	sprite= Sprite::create("Character\\Knight.png");
@@ -33,25 +69,21 @@ bool Knight::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 
 	sprite->setPosition(visibleSize.width / 2, visibleSize.height / 2);
-	//setKnightKeyboardListener();
 
 	scheduleUpdate();
 	sprite->scheduleUpdate();
 	return true;
+
+
 }
 
 void Knight::MoveinSafeScene()
 {
 	float duration = 0.1;
-	
-	if (KeyMap[EventKeyboard::KeyCode::KEY_W] || KeyMap[EventKeyboard::KeyCode::KEY_CAPITAL_W])//a little need to modified
-	{
-		if (sprite->getPositionY() + MoveSpeed > FRAME_SIZE_Y)
-			sprite->setPosition(sprite->getPositionX(), FRAME_SIZE_Y);
-		else
-			sprite->setPosition(sprite->getPositionX(), sprite->getPositionY()+MoveSpeed);
-
-	}
+	if (sprite->getPositionY() + MoveSpeed > FRAME_SIZE_Y)
+		sprite->setPosition(sprite->getPositionX(), FRAME_SIZE_Y);
+	else
+		sprite->setPosition(sprite->getPositionX(), sprite->getPositionY() + MoveSpeed);
 }
 
 

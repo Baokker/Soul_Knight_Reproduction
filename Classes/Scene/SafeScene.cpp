@@ -30,7 +30,6 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
-
 }
 
 bool SafeScene::init()
@@ -55,28 +54,7 @@ bool SafeScene::init()
 	//in this file the movement of knight has nothing with its move function in the battle room
 	knight.init();
 	this->addChild(knight.sprite, 1);
-
-	auto KnightEventListenerKeyboard = EventListenerKeyboard::create();
-
-	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
-	{
-		knight.KeyMap[keycode] = true;
-		if (keycode == EventKeyboard::KeyCode::KEY_W || keycode == EventKeyboard::KeyCode::KEY_CAPITAL_W )
-		{
-			auto moveby = MoveBy::create(0.1, Vec2(0, 5));
-			knight.sprite->runAction(moveby);
-		}
-
-	};
-	/*
-	KnightEventListenerKeyboard->onKeyPressed = [&](EventKeyboard::KeyCode keycode, Event* event)
-	{
-		knight.KeyMap[keycode] = false;
-	};	
-	*/
-
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, this);//forget this sentence!!for it I stopped for a week!!
-
+	knight.setKnightKeyboardListener();
 	this->scheduleUpdate();
 	return true;
 }

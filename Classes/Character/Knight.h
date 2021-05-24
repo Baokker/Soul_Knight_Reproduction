@@ -41,7 +41,10 @@ class Knight : public Node//reorginaze the arrangement of Knight
 		int Shield = 5;
 		int Money = 0;
 		int MoveSpeed = 5;
-		std::map<EventKeyboard::KeyCode, bool> KeyMap;
+		Animate* MoveUpinSafeScene();
+		Animate* MoveDowninSafeScene();
+		Animate* MoveLeftinSafeScene();
+		Animate* MoveRightinSafeScene();
 		Sprite* sprite;
 
 };
