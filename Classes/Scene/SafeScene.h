@@ -19,8 +19,12 @@
 #include "ui/CocosGUI.h"
 #include"AudioEngine.h"
 #include"..//Character/Knight.h"
+#include"..//Enemy/Enemy.h"
+#include<vector>
+#include<string>
 
 USING_NS_CC;
+using namespace std;
 
 class SafeScene :public cocos2d::Scene
 {
@@ -30,15 +34,21 @@ public:
 	void update(float dt) override;
 
 	virtual bool init();
-
+		
 	void menuCloseCallback(Ref* pSender);
 
 	CREATE_FUNC(SafeScene);//automatically call the create(),init(),and autorelease()
 
+	void BulletsUpdate();
+
+	~SafeScene();
 private:
-	Knight knight;
+	Knight* knight;
+	Enemy* enemy;
 
-
+	int SelectedBulletNum = 0;
+	int MaxBulletNum = 1000;
+	vector<Bullet*> bullets=vector<Bullet*>(MaxBulletNum);
 };
 
 #endif

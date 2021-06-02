@@ -31,13 +31,14 @@ void Knight::setKnightKeyboardListener()
 	{
 		switch (keycode)
 		{
+			//move
 			case EventKeyboard::KeyCode::KEY_W:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
 				MoveSpeedY = MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -48,7 +49,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedX = -MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -59,7 +60,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedY = -MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -70,9 +71,26 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedX = MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
+				break;
+			}
+			//attack
+			case EventKeyboard::KeyCode::KEY_J:
+			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
+			{	
+				if (weapon[Holding]->Type == isGun)
+					isShooting = true;
+				else if (weapon[Holding]->Type == isMelee)
+					isMeleeing = true;
+				break;
+			}
+			//switch weapon
+			case EventKeyboard::KeyCode::KEY_K:
+			case EventKeyboard::KeyCode::KEY_CAPITAL_K:
+			{	
+				SwitchWeapon();
 				break;
 			}
 		}
@@ -85,7 +103,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
 				MoveSpeedY = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -93,7 +111,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 			{
 				MoveSpeedX = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -101,7 +119,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 			{
 				MoveSpeedY = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -109,7 +127,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 			{
 				MoveSpeedX = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -122,22 +140,68 @@ void Knight::setKnightKeyboardListener()
 		MoveSpeedY = MoveSpeedY / MoveSpeed * MoveSpeed/(sqrt(2));
 	}
 
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, sprite);//forget this sentence!!for it I stopped for a week!!
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, this);//forget this sentence!!for it I stopped for a week!!
+}
+
+void Knight::AttackwithGun(Bullet *bullet)
+{
+	weapon[Holding]->Shoot(bullet);
+}
+
+void Knight::AttackMelee()
+{
+	weapon[Holding]->Attack();
+}
+
+void Knight::SwitchWeapon()//the scene should also update!
+{
+	if (isHavingOneWeapon)
+		return;
+
+	if (Holding == 0)
+	{
+		Holding = 1;
+	}
+	else if (Holding == 1)
+	{
+		Holding = 0;
+	}	
+}
+
+void Knight::initWeapon()
+{
+	weapon[0] = Weapon::create("Weapon\\Pistol.png");
+	weapon[0]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
 }
 
 bool Knight::init()
 {
 	//init
-	sprite= Sprite::create("Character\\Knight.png");
-	if (sprite == NULL)
-	{
-		problemLoading("Character\\Knight.png");
-		return false;
-	}
-
 	auto visibleSize = Director::getInstance()->getVisibleSize();
+	setPosition(visibleSize.width / 2, visibleSize.height / 2);
 
-	sprite->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+	//weapon
+	initWeapon();
+
+	//weaponfollow
+	auto WeaponFollow = [this](float) {
+		if (MoveSpeedX > 0)//right direction as default
+		{
+			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(false);
+		}
+		else if (MoveSpeedX < 0)
+		{
+			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(true);
+		}
+		else
+		{
+			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
+		}
+	};
+
+	schedule(WeaponFollow, FPS, "weaponfollow");
 
 	//keyboard
 	setKnightKeyboardListener();
@@ -159,5 +223,51 @@ bool Knight::init()
 	return true;
 }
 
+void Knight::MoveinSafeScene()
+{
+	/*
+	let fbc explain how to make the knight move. it has two parts:
+	firstly,create a keyboardlistener in the class Knight and initialize it, so when the player presses keys like wasd, it will set the speed and play the animation(reset to zero when released)
+	then,in this update function which will be executed sixty times per second, the computer check the speed and setposition every frame.
+	almost every move goes like that
+	*/
+	auto visiblesize = Director::getInstance()->getVisibleSize();
+	if (getPositionX() + MoveSpeedX<0 || getPositionX() + MoveSpeedX>visiblesize.width)
+		MoveSpeedX = 0;
+	if (getPositionY() + MoveSpeedY<0 || getPositionY() + MoveSpeedY>visiblesize.height)
+		MoveSpeedY = 0;	
+
+	setPosition(getPositionX() + MoveSpeedX, getPositionY() + MoveSpeedY);
+
+	if (MoveSpeedX > 0)
+	{
+		setFlippedX(false);
+	}
+	else if (MoveSpeedX < 0)
+	{
+		setFlippedX(true);
+	}
+
+	//WeaponFollow();
+	//it has been scheduled in the init()(the lambda function)
+}
+
+void Knight::WeaponFollow()
+{
+	if (MoveSpeedX < 0)
+	{
+		weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+		weapon[Holding]->setFlippedX(true);
+	}
+	else if (MoveSpeedX > 0)
+	{
+		weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+		weapon[Holding]->setFlippedX(false);
+	}
+	else
+	{
+		weapon[Holding]->setPosition(getPositionX() + (isFlippedX()?-1:1)*WeaponAndHeroDistance, getPositionY());
+	}
+}
 
 

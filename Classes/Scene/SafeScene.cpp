@@ -21,7 +21,6 @@ Scene* SafeScene::CreateScene()
 }
 
 //print useful error message
-//use static so that only this program can execute it
 static void problemLoading(string filename)
 {
 	cerr << "Error while loading:" << filename << endl;
@@ -30,21 +29,33 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
-	/*
-	let fbc explain how to make the knight move. it has two parts:
-	firstly,create a keyboardlistener in the class Knight and initialize it, so when the player presses keys like wasd, it will set the speed and play the animation(reset to zero when released)
-	then,in this update function which will be executed sixty times per second, the computer check the speed and setposition every frame.
-	almost every move goes like that 
-	*/
-	auto visiblesize = Director::getInstance()->getWinSize();
-	if (knight.sprite->getPositionX() + knight.MoveSpeedX<0 || knight.sprite->getPositionX() + knight.MoveSpeedX>visiblesize.width)
-		knight.MoveSpeedX = 0;
-	if (knight.sprite->getPositionY() + knight.MoveSpeedY<0 || knight.sprite->getPositionY() + knight.MoveSpeedY>visiblesize.height)
-		knight.MoveSpeedY = 0;	
+	//knight
+	knight->MoveinSafeScene();
 
-	//knight.sprite->setPosition(knight.sprite->getPositionX() + 1, knight.sprite->getPositionY() + 1);
-	knight.sprite->setPosition(knight.sprite->getPositionX() + knight.MoveSpeedX, knight.sprite->getPositionY() + knight.MoveSpeedY);
-	//knight.sprite->runAction(MoveBy::create(0.05, Vec2(knight.MoveSpeedX, knight.MoveSpeedY)));
+	if (knight->isMeleeing)
+	{
+		knight->AttackMelee();
+		knight->isMeleeing = false;
+	}
+	else if (knight->isShooting)
+	{
+		knight->AttackwithGun(bullets.at(SelectedBulletNum++));
+		knight->isShooting = false;
+	}
+	
+	//enemy
+	if (!enemy->isInBattle)
+	{
+		enemy->Wandering();
+	}
+	else
+	{
+		//battle
+		enemy->Shoot(bullets.at(SelectedBulletNum++));
+		enemy->Wandering();
+	}
+
+	SelectedBulletNum = SelectedBulletNum %= MaxBulletNum;
 }
 
 bool SafeScene::init()
@@ -60,16 +71,30 @@ bool SafeScene::init()
 		problemLoading("Scene\\SafeScene.jpg");
 	else
 	{
-		SafeBackground->setScale(1.35);
+		SafeBackground->setScale(visibleSize.width / SafeBackground->getContentSize().width);
 		SafeBackground->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
 		this->addChild(SafeBackground, 0);
 	}
 
 	//knight
-	//in this file the movement of knight has nothing with its move function in the battle room
-	knight.init();
+	knight = Knight::create("Character\\Knight.png");
 
-	this->addChild(knight.sprite, 1);
+	this->addChild(knight, 1);
+	this->addChild(knight->weapon[knight->Holding], 1);
+
+	//enemy
+	enemy = Enemy::create("Enemy\\Alien\\enemy001.png");
+
+	this->addChild(enemy, 2);
+	this->addChild(enemy->weapon, 2);
+
+	//bullet
+	for (int i = 0; i < MaxBulletNum; i++)
+	{
+		bullets.at(i) = Bullet::create("Bullet/Bullet1.png");
+		this->addChild(bullets.at(i), 3);
+		bullets.at(i)->setVisible(false);
+	}
 
 	this->scheduleUpdate();
 	return true;
@@ -78,4 +103,8 @@ bool SafeScene::init()
 void SafeScene::menuCloseCallback(Ref* pSender)
 {
 	Director::getInstance()->end();
+}
+
+SafeScene::~SafeScene()
+{
 }
