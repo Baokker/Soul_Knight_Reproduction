@@ -11,10 +11,11 @@
 #include<cocos2d.h>
 #include"Const.h"
 #include"Bullet/Bullet.h"
+#include<vector>
 
 USING_NS_CC;
 
-class Weapon :public Node
+class Weapon :public Sprite
 {
 	friend class Knight;
 	friend class SafeScene;
@@ -23,18 +24,13 @@ class Weapon :public Node
 	public:
 		bool init();
 		bool Enemyinit();
-		Bullet* Shoot();
-		void Shoot(Bullet& bullet);
+		void Shoot(Bullet* bullet);
 		void Attack();//Melee
-		//virtual void update(float delta) override;
-		void bindWithKnight(Knight* master);
-		void bindWithEnemy(Enemy* enemy);
-		//Weapon();
-		//Weapon(int WeaponType, int WeaponName);
+		CREATE_FUNC_WITH_FILE(Weapon);
+		CREATE_FUNC(Weapon);
 	private:
-		Sprite* sprite;
 		int Type = isGun;//default,can set it in inheritance
-		Knight* knight;
-		Enemy* enemy;
+		int damage = 2;
+		int Bulletspeed = 10;
 };
 #endif

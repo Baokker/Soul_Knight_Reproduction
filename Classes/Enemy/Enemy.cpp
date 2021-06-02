@@ -12,54 +12,33 @@ USING_NS_CC;
 
 bool Enemy::init()
 {
-	sprite = Sprite::create("Enemy\\Alien\\enemy001.png");
+	//enemy
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-	sprite->setPosition(visibleSize.width/2, visibleSize.height/2);
+	setPosition(rand() % (int)visibleSize.width, rand() % (int)visibleSize.height);
 
+	//weapon
+	weapon = Weapon::create();//don't need an image of weapon
+
+	auto WeaponFollow = [this](float) {
+		if (isFlippedX())//right direction as default
+		{
+			this->weapon->setPosition(this->getPosition());
+			this->weapon->setFlippedX(false);
+		}
+		else
+		{
+			this->weapon->setPosition(this->getPosition());
+			this->weapon->setFlippedX(true);
+		}
+	};
+
+	schedule(WeaponFollow, FPS, "WeaponFollow");
 	return true;
 }
 
-void Enemy::Shoot(Weapon& weapon,Bullet& bullet)
+void Enemy::Shoot(Bullet* bullet)
 {
-	//bullet.init();
-	weapon.Shoot(bullet);
-}
-
-/*
-Bullet* Enemy::Shoot()
-{
-	Bullet bullet;
-	bullet.init();
-	if (sprite->isFlippedX())
-	{
-		bullet.MoveSpeedX = -bullet.MoveSpeed;
-	}
-	else
-	{
-		bullet.MoveSpeedX = +bullet.MoveSpeed;
-	}
-	return &bullet;
-}
-*/
-
-
-bool Enemy::isBindwithWeapon(Weapon& weapon)
-{
-	return sprite->getBoundingBox().intersectsRect(weapon.sprite->getBoundingBox());//key sentences!!
-}
-
-void Enemy::WeaponFollow(Weapon& weapon)
-{
-	if (!sprite->isFlippedX())//right direction as default
-	{
-		weapon.sprite->setPosition(sprite->getPositionX() + WeaponAndHeroDistance, sprite->getPositionY());
-		weapon.sprite->setFlippedX(false);
-	}
-	else
-	{
-		weapon.sprite->setPosition(sprite->getPositionX() - WeaponAndHeroDistance, sprite->getPositionY());
-		weapon.sprite->setFlippedX(true);
-	}
+	weapon->Shoot(bullet);
 }
 
 void Enemy::Wandering()
@@ -74,46 +53,50 @@ void Enemy::Wandering()
 	switch (direction)
 	{
 		case UP:
-			if (sprite->getPositionY() + distance < Director::getInstance()->getWinSize().height)
+			if (getPositionY() < Director::getInstance()->getWinSize().height)
 			{
-				sprite->setPosition(sprite->getPositionX(), sprite->getPositionY() + distance);
-				if (sprite->isFlippedX())
+				setPosition(getPositionX(), getPositionY() + distance);
+				if (isFlippedX())
 				{
-					sprite->setFlippedX(false);
+					setFlippedX(false);
 				}
 			}
 			break;
 		case DOWN:
-			if (sprite->getPositionY() + distance > 0)
+			if (getPositionY() > 0)
 			{
-				sprite->setPosition(sprite->getPositionX(), sprite->getPositionY() - distance);
-				if (sprite->isFlippedX())
+				setPosition(getPositionX(), getPositionY() - distance);
+				if (isFlippedX())
 				{
-					sprite->setFlippedX(false);
+					setFlippedX(false);
 				}
 			}
 			break;
 		case LEFT:
-			if (sprite->getPositionX() + distance > 0)
+			if (getPositionX() > 0)
 			{
-				sprite->setPosition(sprite->getPositionX() - distance, sprite->getPositionY());
-				if (!sprite->isFlippedX())
+				setPosition(getPositionX() - distance, getPositionY());
+				if (!isFlippedX())
 				{
-					sprite->setFlippedX(true);
+					setFlippedX(true);
 				}
 			}
 			break;
 		case RIGHT:
-			if (sprite->getPositionX() + distance < Director::getInstance()->getWinSize().width)
+			if (getPositionX() < Director::getInstance()->getWinSize().width)
 			{
-				sprite->setPosition(sprite->getPositionX() + distance, sprite->getPositionY());
-				if (sprite->isFlippedX())
+				setPosition(getPositionX() + distance, getPositionY());
+				if (isFlippedX())
 				{
-					sprite->setFlippedX(false);
+					setFlippedX(false);
 				}
 			}
 			break;
 		default:
 			break;
 	}
+}
+
+Enemy::~Enemy()
+{
 }

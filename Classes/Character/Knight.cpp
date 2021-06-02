@@ -38,7 +38,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedY = MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -49,7 +49,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedX = -MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -60,7 +60,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedY = -MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -71,7 +71,7 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedX = MoveSpeed;
 				if (!isMoving)
 				{
-					sprite->runAction(MoveAnimate);
+					runAction(MoveAnimate);
 					isMoving = true;
 				}
 				break;
@@ -80,9 +80,9 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{	
-				if (weapon[Holding].Type == isGun)
+				if (weapon[Holding]->Type == isGun)
 					isShooting = true;
-				else if (weapon[Holding].Type == isMelee)
+				else if (weapon[Holding]->Type == isMelee)
 					isMeleeing = true;
 				break;
 			}
@@ -103,7 +103,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
 				MoveSpeedY = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -111,7 +111,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 			{
 				MoveSpeedX = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -119,7 +119,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 			{
 				MoveSpeedY = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -127,7 +127,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 			{
 				MoveSpeedX = 0;
-				sprite->stopAllActions();
+				stopAllActions();
 				isMoving = false;
 				break;
 			}
@@ -140,28 +140,18 @@ void Knight::setKnightKeyboardListener()
 		MoveSpeedY = MoveSpeedY / MoveSpeed * MoveSpeed/(sqrt(2));
 	}
 
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, sprite);//forget this sentence!!for it I stopped for a week!!
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(KnightEventListenerKeyboard, this);//forget this sentence!!for it I stopped for a week!!
 }
 
-void Knight::AttackwithGun(Bullet &bullet)
+void Knight::AttackwithGun(Bullet *bullet)
 {
-	weapon[Holding].Shoot(bullet);
+	weapon[Holding]->Shoot(bullet);
 }
 
 void Knight::AttackMelee()
 {
-	//HoldingWeapon->Attack();
+	weapon[Holding]->Attack();
 }
-
-/*
-void Knight::Attack()
-{
-	if (weapon[Holding].Type == isGun)
-		AttackwithGun();
-	else if (weapon[Holding].Type == isMelee)
-		AttackMelee();
-}
-*/
 
 void Knight::SwitchWeapon()//the scene should also update!
 {
@@ -180,26 +170,38 @@ void Knight::SwitchWeapon()//the scene should also update!
 
 void Knight::initWeapon()
 {
-	weapon[0].init();
-	weapon[0].sprite->setPosition(sprite->getPositionX() + WeaponAndHeroDistance, sprite->getPositionY());
+	weapon[0] = Weapon::create("Weapon\\Pistol.png");
+	weapon[0]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
 }
 
 bool Knight::init()
 {
 	//init
-	sprite= Sprite::create("Character\\Knight.png");
-	if (sprite == NULL)
-	{
-		problemLoading("Character\\Knight.png");
-		return false;
-	}
-
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-
-	sprite->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+	setPosition(visibleSize.width / 2, visibleSize.height / 2);
 
 	//weapon
 	initWeapon();
+
+	//weaponfollow
+	auto WeaponFollow = [this](float) {
+		if (MoveSpeedX > 0)//right direction as default
+		{
+			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(false);
+		}
+		else if (MoveSpeedX < 0)
+		{
+			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(true);
+		}
+		else
+		{
+			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
+		}
+	};
+
+	schedule(WeaponFollow, FPS, "weaponfollow");
 
 	//keyboard
 	setKnightKeyboardListener();
@@ -230,41 +232,41 @@ void Knight::MoveinSafeScene()
 	almost every move goes like that
 	*/
 	auto visiblesize = Director::getInstance()->getVisibleSize();
-	if (sprite->getPositionX() + MoveSpeedX<0 || sprite->getPositionX() + MoveSpeedX>visiblesize.width)
+	if (getPositionX() + MoveSpeedX<0 || getPositionX() + MoveSpeedX>visiblesize.width)
 		MoveSpeedX = 0;
-	if (sprite->getPositionY() + MoveSpeedY<0 || sprite->getPositionY() + MoveSpeedY>visiblesize.height)
+	if (getPositionY() + MoveSpeedY<0 || getPositionY() + MoveSpeedY>visiblesize.height)
 		MoveSpeedY = 0;	
 
-	//sprite->setPosition(sprite->getPositionX() + 1, sprite->getPositionY() + 1);
-	sprite->setPosition(sprite->getPositionX() + MoveSpeedX, sprite->getPositionY() + MoveSpeedY);
+	setPosition(getPositionX() + MoveSpeedX, getPositionY() + MoveSpeedY);
 
 	if (MoveSpeedX > 0)
 	{
-		sprite->setFlippedX(false);
+		setFlippedX(false);
 	}
 	else if (MoveSpeedX < 0)
 	{
-		sprite->setFlippedX(true);
+		setFlippedX(true);
 	}
 
-	WeaponFollow();
+	//WeaponFollow();
+	//it has been scheduled in the init()(the lambda function)
 }
 
 void Knight::WeaponFollow()
 {
 	if (MoveSpeedX < 0)
 	{
-		weapon[Holding].sprite->setPosition(sprite->getPositionX() - WeaponAndHeroDistance, sprite->getPositionY());
-		weapon[Holding].sprite->setFlippedX(true);
+		weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+		weapon[Holding]->setFlippedX(true);
 	}
 	else if (MoveSpeedX > 0)
 	{
-		weapon[Holding].sprite->setPosition(sprite->getPositionX() + WeaponAndHeroDistance, sprite->getPositionY());
-		weapon[Holding].sprite->setFlippedX(false);
+		weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+		weapon[Holding]->setFlippedX(false);
 	}
 	else
 	{
-		weapon[Holding].sprite->setPosition(sprite->getPositionX() + (sprite->isFlippedX()?-1:1)*WeaponAndHeroDistance, sprite->getPositionY());
+		weapon[Holding]->setPosition(getPositionX() + (isFlippedX()?-1:1)*WeaponAndHeroDistance, getPositionY());
 	}
 }
 

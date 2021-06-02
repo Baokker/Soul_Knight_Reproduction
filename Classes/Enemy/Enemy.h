@@ -13,19 +13,18 @@
 #include"Bullet/Bullet.h"
 USING_NS_CC;
 
-class Enemy
+class Enemy:public Sprite
 {
 	friend class SafeScene;
 	friend class BattleScene;
 	public:
 		bool init();
-		void Shoot(Weapon& weapon,Bullet& bullet);
-		bool isBindwithWeapon(Weapon& weapon);
+		void Shoot(Bullet* bullet);
 		void Wandering();
-		void WeaponFollow(Weapon& weapon);
+		~Enemy();
+		CREATE_FUNC_WITH_FILE(Enemy);
 	private:
-		Sprite* sprite;
-		bool isInBattle = false;
-		int isShoot = 0;
+		Weapon *weapon = nullptr;
+		bool isInBattle = true;
 };
 #endif

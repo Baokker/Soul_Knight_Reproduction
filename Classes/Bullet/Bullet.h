@@ -26,20 +26,14 @@ it will go itself,and disappear(setvisible(false),stopallactions) itself.
 	friend class Knight;
 	friend class Enemy;
 	friend class SafeScene;
-public:
-	bool init() override;
-	Weapon* BindwithWeapon(Weapon* weapon);
-	//bool initBulletwithWeapon(Weapon* weapon);
-	//bool Enemyinit(Enemy* enemy);
-	//virtual void update(float delta);
-
-	void Move();
+	public:
+		bool init();
+		CREATE_FUNC_WITH_FILE(Bullet);
 private:
-	Sprite* sprite = nullptr;
-	int damage = 2;
+	int damage = 0;
 	int MoveSpeed = 10;
 	int MoveSpeedX = 0;
 	int MoveSpeedY = 0;
-
+	//animation
 };
 #endif

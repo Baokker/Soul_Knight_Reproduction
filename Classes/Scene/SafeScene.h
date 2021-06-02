@@ -41,14 +41,14 @@ public:
 
 	void BulletsUpdate();
 
+	~SafeScene();
 private:
-	Knight knight;
-	Enemy enemy;
-	Weapon enemyWeapon;
-	//static vector<Bullet> bullets;
+	Knight* knight;
+	Enemy* enemy;
+
 	int SelectedBulletNum = 0;
-	int MaxBulletNum=100;
-	vector<Bullet> bullets=vector<Bullet>(MaxBulletNum);
+	int MaxBulletNum = 1000;
+	vector<Bullet*> bullets=vector<Bullet*>(MaxBulletNum);
 };
 
 #endif

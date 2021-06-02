@@ -15,6 +15,8 @@ constexpr int FRAME_SIZE_Y = 720;
 
 constexpr int WeaponAndHeroDistance = 40;
 
+constexpr float FPS = 1 / 60;
+
 struct BulletInfo
 {
 	std::string Name;
@@ -49,6 +51,22 @@ constexpr int DOWN = 1;
 constexpr int LEFT = 2;
 constexpr int RIGHT = 3;//luanlaide
 
+#define CREATE_FUNC_WITH_FILE(__TYPE__) \
+static __TYPE__* create(const char* filename) \
+{ \
+    __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
+    if (pRet && pRet->initWithFile(filename) && pRet->init()) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
+        pRet = nullptr; \
+        return nullptr; \
+    } \
+}
 
 
 
