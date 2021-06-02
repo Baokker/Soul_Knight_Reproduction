@@ -1,340 +1,169 @@
 #include "BattleRoom.h"
-#include "Const.h"
-#include "cocos2d.h"
+#include "BattleScene.h"
 
-USING_NS_CC;
+void BattleRoom::setCenter(int X, int Y) { centerX = X, centerY = Y; }
 
-Scene* BattleRoom::createScene()
-{
-    return BattleRoom::create();
+bool BattleRoom::init() {
+	centerX = 0, centerY = 0;
+	upLeftX = 0, upLeftY = 0;
+	downRightX = 0, downRightY = 0;
+	x = 0, y = 0;
+	Height = SIZEROOM, Width = SIZEROOM;
+
+	memset(visDir, false, sizeof(visDir));
+	knight = nullptr;
+	this->scheduleUpdate();
+	return true;
 }
 
-// Print useful error message instead of segfaulting when files are not there.
-static void problemLoading(const char* filename)
-{
-    printf("Error while loading: %s\n", filename);
-    printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n");
+bool BattleRoom::createRoom(BattleRoom*& nextRoom, BattleRoom* curRoom, int dir, int toX, int toY) {
+	if (nextRoom != nullptr) 
+	{
+		// room was built, no not need to build again
+		curRoom->visDir[dir] = true;
+		nextRoom->visDir[(dir + 2) % CNTDIR] = true;
+		// just connect them if nextRoom is not beginRoom
+		return false;
+	}
+
+	nextRoom = BattleRoom::create();
+
+	nextRoom->x = toX, nextRoom->y = toY;
+	nextRoom->setCenter(curRoom->centerX + DIRX[dir] * CENTERDIS, curRoom->centerY + DIRY[dir] * CENTERDIS);
+	curRoom->visDir[dir] = true;
+	nextRoom->visDir[(dir + 2) % CNTDIR] = true;
+	return true;
 }
 
-// on "init" you need to initialize your instance
-bool BattleRoom::init()
+void BattleRoom::createDoor(int X, int Y, int layer) 
 {
-    // 1. super init first
-    if (!Scene::init())
-    {
-        return false;
-    }
-    auto winSize = Director::getInstance()->getVisibleSize();
-    auto origin = Director::getInstance()->getVisibleOrigin();
+	Sprite* doorOpen;
+	doorOpen = Sprite::create("Map//doorOpen.png");
+	this->addChild(doorOpen, KNIGHTLAYER - 2);
+	doorOpen->setGlobalZOrder(KNIGHTLAYER - 2);
+	doorOpen->setPosition(X, Y);
+	doorOpen->setVisible(true);
+	openedDoor.pushBack(doorOpen);
 
-    auto keyListener = EventListenerKeyboard::create();
-    keyListener->onKeyPressed = CC_CALLBACK_2(BattleRoom::onKeyPressed, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
-
-    _player = Sprite::create("player.png");
-    _player->setPosition(Vec2(winSize.width * 0.1, winSize.height * 0.5));
-    this->addChild(_player);
-
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            scene[i][j] = false;
-        }
-    }
-    createBattleScene(scene[0],5);
-    return true;
+	Sprite* doorClose;
+	doorClose = Sprite::create("Map//doorClose.png");
+	this->addChild(doorClose, layer);
+	doorClose->setGlobalZOrder(layer);
+	doorClose->setPosition(X, Y + FLOORHEIGHT / 2);
+	doorClose->setVisible(false);  // closeDoor images are not visible at first
+	closedDoor.pushBack(doorClose);
 }
 
-void BattleRoom::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
-    log("Key with keycode %d pressed", keyCode);
-    switch (keyCode) {
-    case EventKeyboard::KeyCode::KEY_D:
-    {
-        auto moveBy = MoveBy::create(0.5f, Vec2(20, 0));
-        _player->runAction(Sequence::create(moveBy, nullptr));
-        break;
-    }
-    case EventKeyboard::KeyCode::KEY_A:
-    {
-        auto moveBy = MoveBy::create(0.5f, Vec2(-20, 0));
-        _player->runAction(Sequence::create(moveBy, nullptr));
-        break;
-    }
-    case EventKeyboard::KeyCode::KEY_W:
-    {
-        auto moveBy = MoveBy::create(0.5f, Vec2(0, 20));
-        _player->runAction(Sequence::create(moveBy, nullptr));
-        break;
-    }
-    case EventKeyboard::KeyCode::KEY_S:
-    {
-        auto moveBy = MoveBy::create(0.5f, Vec2(0, -20));
-        _player->runAction(Sequence::create(moveBy, nullptr));
-        break;
-    }
-    default:
-        break;
-    }
+void BattleRoom::addMapElement() {
+	const int X = centerX - FLOORWIDTH * (Width / 2);
+	const int Y = centerY + FLOORHEIGHT * (Height / 2);
+	//(X, Y) is upLeft Position;
+	upLeftX = X + FLOORWIDTH, upLeftY = Y - FLOORHEIGHT;
+
+	downRightX = X + FLOORWIDTH * (Width - 2);
+	downRightY = Y - FLOORHEIGHT * (Height - 2);
+
+	int curX = X, curY = Y;
+	for (int H = Height - 1; H >= 0; H--) 
+	{
+		for (int W = 0; W <= Width - 1; W++)
+		{
+			if (H == 0 || H == Height - 1 || W == 0 || W == Width - 1) 
+			{
+				if (((W == 0) && visDir[LEFT] && (Height / 2 - 2 <= H) && (H <= Height / 2 - 2 + SIZEHALL - 3)) ||
+					((W == Width - 1) && visDir[RIGHT] && (Height / 2 - 2 <= H) && (H <= Height / 2 - 2 + SIZEHALL - 3)) ||
+					((H == 0) && visDir[DOWN] && (Width / 2 - 2 <= W) && (W <= Width / 2 - 2 + SIZEHALL - 3)) ||
+					((H == Height - 1) && visDir[UP] && (Width / 2 - 2 <= W) &&	(W <= Width / 2 - 2 + SIZEHALL - 3))) 
+				{
+					if (H != Height - 1)
+						createDoor(curX, curY, KNIGHTLAYER + 1);
+					else
+						createDoor(curX, curY, KNIGHTLAYER - 1);
+				}
+				else if (H != Height - 1 || W == 0 || W == Width - 1) 
+				{
+					if (H == Height / 2 + SIZEHALL - 4)
+						createWall(curX, curY, KNIGHTLAYER + 1, true);
+					else
+						createWall(curX, curY, KNIGHTLAYER + 1, false);
+				}
+				else if (visDir[UP] && H == Height - 1 && (W == Width / 2 - 3 || W == Width / 2 + SIZEHALL - 4))
+				{
+					createWall(curX, curY, KNIGHTLAYER + 2, true);
+				}
+				else
+				{
+					if (H == Height - 1)  //add shadow to the upside wall
+						createWall(curX, curY, KNIGHTLAYER - 1, true);
+					else
+						createWall(curX, curY, KNIGHTLAYER - 1, false);
+				}
+			}
+			else 
+			{
+				createFloor(curX, curY, KNIGHTLAYER - 2);
+			}
+
+			curX += FLOORWIDTH;
+		}
+		curX = X, curY -= FLOORHEIGHT;
+	}
+}
+void BattleRoom::closeDoor() 
+{
+	for (auto sprite : openedDoor) 
+	{
+		sprite->setVisible(false);
+	}
+
+	for (auto sprite : closedDoor) 
+	{
+		sprite->setVisible(true);
+	}
 }
 
-
-void BattleRoom::createDoor(int X, int Y, int layer)
+void BattleRoom::openDoor() 
 {
-    Sprite* door = Sprite::create("Scene/Room/doorOpen.png");
-    this->addChild(door);
-    door->setGlobalZOrder(layer);
-    door->setPosition(Point(X, Y));
-}
-void BattleRoom::createFloor(int X, int Y, int layer)
-{
-    int floor = rand();
+	for (auto sprite : openedDoor)
+	{
+		sprite->setVisible(true);
+	}
 
-    Sprite* temp = nullptr;
-
-
-    if (floor % 4 == 0)
-        temp = Sprite::create("Scene/Room/Forest/floor3.png");
-    else if (floor % 3 == 0)
-        temp = Sprite::create("Scene/Room/Forest/floor2.png");
-    else
-        temp = Sprite::create("Scene/Room/Forest/floor1.png");
-
-    this->addChild(temp);
-    temp->setGlobalZOrder(layer);
-    temp->setPosition(Point(X, Y));
-    //vecFloor.pushBack(tmpSprite);
+	for (auto sprite : closedDoor)
+	{
+		sprite->setVisible(false);
+	}
 }
 
-void BattleRoom::createWall(int X, int Y, int layer)
+bool BattleRoom::boundaryCheck(Knight* knight, int& ispeedX, int& ispeedY) 
 {
-    int wall = rand();
+	int knightX = knight->getPositionX();
+	int knightY = knight->getPositionY();
 
-    Sprite* temp = nullptr;
-    if (wall % 6 == 0)
-        temp = Sprite::create("Scene/Room/Forest/wall2.png");
-    else
-        temp = Sprite::create("Scene/Room/Forest/wall1.png");
-
-    this->addChild(temp, layer);
-    temp->setGlobalZOrder(layer);
-    temp->setPosition(Point(X, Y + (WALLHEIGHT - FLOORHEIGHT)));
-    //vecWall.pushBack(tmpSprite);
-    // Upside of whe wall
-
-    /*
-    if (wall % 6 == 0)
-        temp = Sprite::create("Scene/Room/Forest/wall2.png");
-    else
-        temp = Sprite::create("Scene/Room/Forest/wall1.png");
-    this->addChild(temp, layer - 2);
-    temp->setGlobalZOrder(layer - 2);
-    temp->setPosition(Point(X, Y + (WALLHEIGHT - FLOORHEIGHT) - 30));
-    */
-
-
-    //vecWall.pushBack(tmpSprite);
-    // downside of the wall
-
-    /*if (addShadow) {  //Ìí¼ÓÒõÓ°
-        auto shadow = Sprite::create("Room//RectShadow.png");
-        shadow->setGlobalZOrder(LayerPlayer - 1);
-        shadow->setPosition(Point(20, -8));
-        shadow->setOpacity(140);
-        tmpSprite->addChild(shadow);
-    }
-    */
-}
-
-void BattleRoom::createRoom(int X, int Y)
-{
-    int LayerPlayer = 3;
-    srand(time(nullptr));
-    float curX = X, curY = Y;
-    for (int y = ROOMHEIGHT - 1; y >= 0; y--)
-    {  // for height and width
-        for (int x = 0; x <= ROOMWIDTH - 1; x++) 
-        {
-            if (y == 0 || y == ROOMHEIGHT - 1)
-            {
-                if (y == 0)
-                    createWall(curX, curY, LayerPlayer + 1);
-                else
-                    createWall(curX, curY, LayerPlayer - 1);
-            }
-            else if (x == 0 || x == ROOMWIDTH - 1)
-            {
-                createWall(curX, curY, LayerPlayer + 1);
-            }
-            else 
-            {
-                createFloor(curX, curY, LayerPlayer -2);
-            }
-            // randomly generate floor and Wall
-
-            curX += FLOORWIDTH;
-        }
-        curX = X, curY -= FLOORHEIGHT;
-    }
-}
-
-void BattleRoom::createHall(int X, int Y,int dir)//dir 1 means || dir 0 means --
-{
-    int LayerPlayer = 2;
-    srand(time(nullptr));
-    float curX = X, curY = Y;
-    int xEnd, yStart;
-    if (dir == 0)
-    {
-        yStart = HALLHEIGHT - 1;
-        xEnd = HALLWIDTH - 1;
-    }
-    else
-    {
-        yStart = HALLWIDTH - 1;
-        xEnd = HALLHEIGHT - 1;
-
-    }
-    for (int y = yStart; y >= 0; y--)
-    {  // for height and width
-        for (int x = 0; x <= xEnd; x++)
-        {
-            if (y == 0 || y == yStart)
-            {
-                if (y == 0)
-                    createWall(curX, curY, LayerPlayer + 1);
-                else
-                    createWall(curX, curY, LayerPlayer -1);
-            }
-            else if (x == 0 || x == xEnd)
-            {
-                createWall(curX, curY, LayerPlayer - 1);
-            }
-            else
-            {
-                createFloor(curX, curY, LayerPlayer - 2);
-            }
-            // randomly generate floor and Wall
-            curX += FLOORWIDTH;
-        }
-        curX = X, curY -= FLOORHEIGHT;
-    }
-}
-
-void BattleRoom::createBattleScene(bool* scene, int num)
-{
-    auto winSize = Director::getInstance()->getVisibleSize();
-    int curX = (winSize.width - ROOMWIDTH * FLOORWIDTH) / 2;
-    int curY = winSize.height-(winSize.height - ROOMHEIGHT * FLOORHEIGHT) / 2;
-
-    bool* curp = scene;
-    srand(time(nullptr));
-    int cur = rand() % MAPSIZE * MAPSIZE;
-    while (cur / MAPSIZE != 0 && cur / MAPSIZE != MAPSIZE - 1 && cur % MAPSIZE != 0 && cur % MAPSIZE != MAPSIZE - 1)
-    {
-        int cur = rand() % MAPSIZE * MAPSIZE;
-    }
-    curp = scene + cur;
-    *curp = true;
-    createRoom(curX, curY);
-    int count = 1;
-    while (count < num)  //create the array map
-    {
-        int next = rand() %4;  //0 means up,1 means right, 2 means down, 3 means left
-        switch (next)
-        {
-        case 0:if (cur - MAPSIZE >= 0 && *(curp - MAPSIZE) != false)
-            {
-                curp = curp - MAPSIZE; 
-                *curp = true; 
-                curX = curX + (ROOMWIDTH * FLOORWIDTH - HALLHEIGHT * FLOORWIDTH) / 2;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX + i * WALLWIDTH, curY, 3);
-                }
-                curY = curY + HALLWIDTH * FLOORHEIGHT;
-                createHall(curX, curY, 1);
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX + i*WALLWIDTH, curY, 3);
-                }
-                curX = curX - (ROOMWIDTH * FLOORWIDTH - HALLHEIGHT * FLOORWIDTH) / 2;
-                curY = curY + ROOMHEIGHT * FLOORHEIGHT;
-                createRoom(curX, curY);
-            }break;
-        case 1:if ((cur + 1) % MAPSIZE != 0 && *(curp + 1) != false) 
-            { 
-                curp = curp + 1;
-                *curp = true;
-                curX = curX + ROOMWIDTH * FLOORWIDTH;
-                curY = curY - (ROOMHEIGHT * FLOORHEIGHT - HALLHEIGHT * FLOORHEIGHT) / 2;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX, curY - i * WALLHEIGHT, 3);
-                }
-                createHall(curX, curY, 0);
-                curX = curX + HALLWIDTH * FLOORWIDTH;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX, curY - i * WALLHEIGHT, 3);
-                }
-                curY=curY+ (ROOMHEIGHT * FLOORHEIGHT - HALLHEIGHT * FLOORHEIGHT) / 2;
-                createRoom(curX, curY);
-            }break;
-        case 2:if ((cur + MAPSIZE) / MAPSIZE < MAPSIZE && *(curp + MAPSIZE) != false) 
-            {
-                curp = curp + MAPSIZE;
-                *curp = true;
-                curX = curX + (ROOMWIDTH * FLOORWIDTH - HALLHEIGHT * FLOORWIDTH) / 2;
-                curY = curY - HALLWIDTH * FLOORHEIGHT;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX + i * WALLWIDTH, curY, 3);
-                }
-                createHall(curX, curY, 1);
-                curX = curX - (ROOMWIDTH * FLOORWIDTH - HALLHEIGHT * FLOORWIDTH) / 2;
-                curY = curY - ROOMHEIGHT * FLOORHEIGHT;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX + i * WALLWIDTH, curY, 3);
-                }
-                createRoom(curX, curY);
-            }break;
-        case 3:if (cur % MAPSIZE != 0 && *(curp - 1) != false) 
-            {
-                curp = curp - 1; 
-                *curp = true;
-                curp = curp + 1;
-                *curp = true;
-                curY = curY - (ROOMHEIGHT * FLOORHEIGHT - HALLHEIGHT * FLOORHEIGHT) / 2;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX, curY - i * WALLHEIGHT, 3);
-                }
-                curX = curX - HALLWIDTH * FLOORWIDTH;
-                createHall(curX, curY, 0);
-                curX = curX - ROOMWIDTH * FLOORWIDTH;
-                for (int i = 1; i <= 5; i++)
-                {
-                    createDoor(curX, curY - i * WALLHEIGHT, 3);
-                }
-                curY = curY + (ROOMHEIGHT * FLOORHEIGHT - HALLHEIGHT * FLOORHEIGHT) / 2;
-                createRoom(curX, curY);
-            }break;
-        }
-        count++;
-    }
-}
-
-void BattleRoom::menuCloseCallback(Ref* pSender)
-{
-    //Close the cocos2d-x game scene and quit the application
-    Director::getInstance()->end();
-
-    /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use Director::getInstance()->end() as given above,instead trigger a custom event created in RootViewController.mm as below*/
-
-    //EventCustom customEndEvent("game_scene_close_event");
-    //_eventDispatcher->dispatchEvent(&customEndEvent);
-
-
+	if (knightX >= upLeftX - FLOORWIDTH && knightX <= downRightX + FLOORWIDTH && knightY <= upLeftY + FLOORHEIGHT && knightY >= downRightY - FLOORHEIGHT) 
+	{
+			if (((upLeftY + FLOORHEIGHT / 2 - FLOORHEIGHT * (Height / 2 - 3)) >=knightY && knightY >= (downRightY + FLOORHEIGHT * (Height / 2 - 3))))  //check the door
+			{
+				if (ispeedX > 0 && knightX >= downRightX && !visDir[RIGHT])
+					ispeedX = 0;
+				if (ispeedX < 0 && knightX <= upLeftX && !visDir[LEFT])
+					ispeedX = 0;
+			}
+			else if (upLeftX + FLOORHEIGHT * (Height / 2 - 3) <= knightX && knightX <= downRightX - FLOORHEIGHT * (Height / 2 - 3)) 
+			{
+				if (ispeedY > 0 && knightY >= upLeftY + FLOORHEIGHT / 2 && !visDir[UP])
+					ispeedY = 0;
+				if (ispeedY < 0 && knightY <= downRightY && !visDir[DOWN])
+					ispeedY = 0;
+			}
+			else 
+			{
+				if (ispeedX > 0 && knightX >= downRightX) ispeedX = 0;
+				if (ispeedX < 0 && knightX <= upLeftX) ispeedX = 0;
+				if (ispeedY > 0 && knightY >= upLeftY) ispeedY = 0;
+				if (ispeedY < 0 && knightY <= downRightY) ispeedY = 0;
+			}
+		return true;
+	}
+	return false;
 }
