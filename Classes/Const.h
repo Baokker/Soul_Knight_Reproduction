@@ -29,7 +29,7 @@ constexpr int WeaponAndHeroDistance = 40;
 constexpr float FPS = 1 / 60;
 
 constexpr int isGun = -1;
-constexpr int isMelee = -2;//½üÕ½ in chinese
+constexpr int isMelee = -2;//ï¿½ï¿½Õ½ in chinese
 constexpr int Pistol = 1;
 //string PistolBulletPath = "Bullet\\PistolBullet.png";
 
