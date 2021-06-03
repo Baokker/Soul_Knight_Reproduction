@@ -4,7 +4,7 @@
 
 #include "cocos2d.h"
 #include "MapRoom.h"
-#include "Actor/Knight.h"
+#include "Character/Knight.h"
 #include "Const.h"
 
 USING_NS_CC;

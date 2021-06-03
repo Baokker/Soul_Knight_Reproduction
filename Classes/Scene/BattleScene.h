@@ -2,7 +2,7 @@
 #ifndef _BATTLESCENE_H_
 #define _BATTLESCENE_H_
 
-#include "Actor\Knight.h"
+#include "Character\Knight.h"
 #include "BattleRoom.h"
 #include "Hall.h"
 #include "Const.h"
@@ -16,6 +16,7 @@ using std::string;
 
 class BattleScene : public Scene 
 {
+	friend class SafeScene;
 	static constexpr int SIZEMTX = 5;
 	static constexpr int MAXROOM = 6; // temporarily make it 6
 	CREATE_FUNC(BattleScene);
@@ -44,6 +45,10 @@ private:
 	BattleRoom* beginRoom = nullptr;
 	BattleRoom* endRoom = nullptr;
 	BattleRoom* battleRoom[SIZEMTX][SIZEMTX] = { nullptr };  // rooms
+
+	int SelectedBulletNum = 0;
+	int MaxBulletNum = 200;
+	vector<Bullet*> bullets = vector<Bullet*>(MaxBulletNum);//bullets
 };
 
 #endif

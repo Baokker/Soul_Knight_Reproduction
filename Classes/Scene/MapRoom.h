@@ -4,7 +4,7 @@
 
 #include "cocos2d.h"
 #include "Const.h"
-#include "Actor/Knight.h"
+#include "Character/Knight.h"
 
 USING_NS_CC;
 

@@ -6,15 +6,22 @@ bool BattleScene::init()
 {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 
-	this->knight = Knight::create();
-	knight->init();
+	this->knight = Knight::create("Character\\Knight.png");
 
-	this->addChild(this->knight);
-	this->addChild(knight->sprite);
+	this->addChild(knight);
+	this->addChild(knight->weapon[knight->Holding]);
 	knight->MoveSpeedX = knight->MoveSpeedY = 0;
 	knight->setPosition(visibleSize.width / 2, visibleSize.height / 2);
 	knight->setGlobalZOrder(6);
-	knight->sprite->setGlobalZOrder(6);
+	knight->weapon[knight->Holding]->setGlobalZOrder(6);
+
+	//bullet
+	for (int i = 0; i < MaxBulletNum; i++)
+	{
+		bullets.at(i) = Bullet::create("Bullet/Bullet1.png");
+		this->addChild(bullets.at(i), 10);
+		bullets.at(i)->setVisible(false);
+	}
 
 	initRoom();
 	connectRoom(beginRoom);
@@ -24,7 +31,21 @@ bool BattleScene::init()
 
 void BattleScene::update(float delta) 
 {
-	updatePos();
+	updatePos();	
+
+	if (knight->isMeleeing)
+	{
+		knight->AttackMelee();
+		knight->isMeleeing = false;
+	}
+	else if (knight->isShooting)
+	{
+		bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
+		bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
+		addChild(bullets.at(SelectedBulletNum), 10);
+		knight->AttackwithGun(bullets.at(SelectedBulletNum++));
+		knight->isShooting = false;
+	}
 }
 
 void BattleScene::updatePos() 

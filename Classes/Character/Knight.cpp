@@ -84,6 +84,7 @@ void Knight::setKnightKeyboardListener()
 					isShooting = true;
 				else if (weapon[Holding]->Type == isMelee)
 					isMeleeing = true;
+				isGoingBattle = true;
 				break;
 			}
 			//switch weapon
@@ -129,6 +130,13 @@ void Knight::setKnightKeyboardListener()
 				MoveSpeedX = 0;
 				stopAllActions();
 				isMoving = false;
+				break;
+			}
+			case EventKeyboard::KeyCode::KEY_J:
+			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
+			{
+				isGoingBattle = false;
+				isShooting = false;
 				break;
 			}
 		}
@@ -183,25 +191,36 @@ bool Knight::init()
 	//weapon
 	initWeapon();
 
-	//weaponfollow
-	auto WeaponFollow = [this](float) {
-		if (MoveSpeedX > 0)//right direction as default
+	//change the direction with the change of speed
+	auto ChangeDirection = [this](float) {
+		auto visiblesize = Director::getInstance()->getVisibleSize();
+		if (getPositionX() + MoveSpeedX<0 || getPositionX() + MoveSpeedX>visiblesize.width)
+			MoveSpeedX = 0;
+		if (getPositionY() + MoveSpeedY<0 || getPositionY() + MoveSpeedY>visiblesize.height)
+			MoveSpeedY = 0;
+		if (MoveSpeedX > 0)
 		{
+			//knight
+			setFlippedX(false);
+			//weapon
 			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
 			weapon[Holding]->setFlippedX(false);
 		}
 		else if (MoveSpeedX < 0)
 		{
+			//knight
+			setFlippedX(true);
+			//weapon
 			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
 			weapon[Holding]->setFlippedX(true);
 		}
-		else
+		else//weapon
 		{
 			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
 		}
 	};
 
-	schedule(WeaponFollow, FPS, "weaponfollow");
+	schedule(ChangeDirection, FPS, "ChangeDirection");
 
 	//keyboard
 	setKnightKeyboardListener();
@@ -231,22 +250,7 @@ void Knight::MoveinSafeScene()
 	then,in this update function which will be executed sixty times per second, the computer check the speed and setposition every frame.
 	almost every move goes like that
 	*/
-	auto visiblesize = Director::getInstance()->getVisibleSize();
-	if (getPositionX() + MoveSpeedX<0 || getPositionX() + MoveSpeedX>visiblesize.width)
-		MoveSpeedX = 0;
-	if (getPositionY() + MoveSpeedY<0 || getPositionY() + MoveSpeedY>visiblesize.height)
-		MoveSpeedY = 0;	
-
 	setPosition(getPositionX() + MoveSpeedX, getPositionY() + MoveSpeedY);
-
-	if (MoveSpeedX > 0)
-	{
-		setFlippedX(false);
-	}
-	else if (MoveSpeedX < 0)
-	{
-		setFlippedX(true);
-	}
 
 	//WeaponFollow();
 	//it has been scheduled in the init()(the lambda function)

@@ -21,6 +21,7 @@ class Weapon :public Sprite
 	friend class SafeScene;
 	friend class Enemy;
 	friend class Bullet;
+	friend class BattleScene;
 	public:
 		bool init();
 		bool Enemyinit();

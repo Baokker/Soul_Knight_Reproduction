@@ -26,6 +26,7 @@ it will go itself,and disappear(setvisible(false),stopallactions) itself.
 	friend class Knight;
 	friend class Enemy;
 	friend class SafeScene;
+	friend class BattleScene;
 	public:
 		bool init();
 		CREATE_FUNC_WITH_FILE(Bullet);

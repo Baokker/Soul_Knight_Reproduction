@@ -5,8 +5,6 @@
 * @modified name date
 */
 
-USING_NS_CC;
-
 #ifndef __KNIGHT_H__
 #define __KNIGHT_H__
 
@@ -14,12 +12,16 @@ USING_NS_CC;
 #include"Const.h"
 #include"Weapon/Weapon.h"
 #include"Bullet/Bullet.h"
+
 //#include<Scene/SafeScene.h> this will cause two header files contain each other!
+
+USING_NS_CC;
 
 class Knight : public Sprite
 {
 	friend class SafeScene;
 	friend class Weapon;
+	friend class BattleScene;
 	//the format should go like the following:
 	public://mostly unwritten
 		/*
@@ -64,5 +66,7 @@ class Knight : public Sprite
 		bool isHavingOneWeapon = true;
 		bool isHavingTwoWeapon = false;
 		Animate* MoveAnimate = nullptr;
+
+		bool isGoingBattle = false;
 };
 #endif

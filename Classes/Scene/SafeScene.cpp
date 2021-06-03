@@ -39,6 +39,9 @@ void SafeScene::update(float delta)
 	}
 	else if (knight->isShooting)
 	{
+		bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
+		bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
+		addChild(bullets.at(SelectedBulletNum), 3);
 		knight->AttackwithGun(bullets.at(SelectedBulletNum++));
 		knight->isShooting = false;
 	}
@@ -51,8 +54,17 @@ void SafeScene::update(float delta)
 	else
 	{
 		//battle
+		bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
+		bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
+		addChild(bullets.at(SelectedBulletNum), 3);
 		enemy->Shoot(bullets.at(SelectedBulletNum++));
 		enemy->Wandering();
+	}
+	auto visiblesize = Director::getInstance()->getVisibleSize();
+	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
+	{
+		auto battlescene = BattleScene::createScene();
+		Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
 	}
 
 	SelectedBulletNum = SelectedBulletNum %= MaxBulletNum;
@@ -97,6 +109,7 @@ bool SafeScene::init()
 	}
 
 	this->scheduleUpdate();
+
 	return true;
 }
 

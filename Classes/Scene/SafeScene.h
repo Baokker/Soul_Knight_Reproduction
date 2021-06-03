@@ -20,6 +20,7 @@
 #include"AudioEngine.h"
 #include"..//Character/Knight.h"
 #include"..//Enemy/Enemy.h"
+#include"BattleScene.h"
 #include<vector>
 #include<string>
 
@@ -39,15 +40,13 @@ public:
 
 	CREATE_FUNC(SafeScene);//automatically call the create(),init(),and autorelease()
 
-	void BulletsUpdate();
-
 	~SafeScene();
 private:
 	Knight* knight;
 	Enemy* enemy;
 
 	int SelectedBulletNum = 0;
-	int MaxBulletNum = 1000;
+	int MaxBulletNum = 200;
 	vector<Bullet*> bullets=vector<Bullet*>(MaxBulletNum);
 };
 
