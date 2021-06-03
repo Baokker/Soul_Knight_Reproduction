@@ -46,9 +46,10 @@ private:
 	BattleRoom* endRoom = nullptr;
 	BattleRoom* battleRoom[SIZEMTX][SIZEMTX] = { nullptr };  // rooms
 
-	int SelectedBulletNum = 0;
-	int MaxBulletNum = 200;
-	vector<Bullet*> bullets = vector<Bullet*>(MaxBulletNum);//bullets
+	//useless now
+	//int SelectedBulletNum = 0;
+	//int MaxBulletNum = 200;
+	//vector<Bullet*> bullets = vector<Bullet*>(MaxBulletNum);//bullets
 };
 
 #endif

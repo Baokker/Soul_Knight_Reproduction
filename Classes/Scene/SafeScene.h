@@ -42,12 +42,13 @@ public:
 
 	~SafeScene();
 private:
-	Knight* knight;
-	Enemy* enemy;
+	Knight* knight = nullptr;
+	Enemy* enemy = nullptr;
 
-	int SelectedBulletNum = 0;
-	int MaxBulletNum = 200;
-	vector<Bullet*> bullets=vector<Bullet*>(MaxBulletNum);
+	//useless now
+	//int SelectedBulletNum = 0;
+	//int MaxBulletNum = 200;
+	//vector<Bullet*> bullets=vector<Bullet*>(MaxBulletNum);
 };
 
 #endif
