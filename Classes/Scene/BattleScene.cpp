@@ -15,14 +15,6 @@ bool BattleScene::init()
 	knight->setGlobalZOrder(6);
 	knight->weapon[knight->Holding]->setGlobalZOrder(6);
 
-	//bullet
-	for (int i = 0; i < MaxBulletNum; i++)
-	{
-		bullets.at(i) = Bullet::create("Bullet/Bullet1.png");
-		this->addChild(bullets.at(i), 10);
-		bullets.at(i)->setVisible(false);
-	}
-
 	initRoom();
 	connectRoom(beginRoom);
 	this->scheduleUpdate();
@@ -40,10 +32,9 @@ void BattleScene::update(float delta)
 	}
 	else if (knight->isShooting)
 	{
-		bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
-		bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
-		addChild(bullets.at(SelectedBulletNum), 10);
-		knight->AttackwithGun(bullets.at(SelectedBulletNum++));
+		auto bullet = Bullet::create("Bullet/yellowbullet.png");
+		addChild(bullet, 10);
+		knight->AttackwithGun(bullet);
 		knight->isShooting = false;
 	}
 }

@@ -32,6 +32,7 @@ bool Bullet::init()
 			setVisible(false);
 			stopAllActions();
 			MoveSpeedX = MoveSpeedY = 0;
+			removeFromParentAndCleanup(true);
 		}
 	};	
 
