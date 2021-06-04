@@ -6,7 +6,7 @@ bool BattleScene::init()
 {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 
-	this->knight = Knight::create("Character\\Knight.png");
+	this->knight = Knight::create();
 
 	this->addChild(knight);
 	this->addChild(knight->weapon[knight->Holding]);
@@ -33,7 +33,7 @@ void BattleScene::update(float delta)
 	else if (knight->isShooting)
 	{
 		auto bullet = Bullet::create("Bullet/yellowbullet.png");
-		addChild(bullet, 10);
+		addChild(bullet, 40);
 		knight->AttackwithGun(bullet);
 		knight->isShooting = false;
 	}

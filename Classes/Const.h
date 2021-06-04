@@ -21,23 +21,37 @@ constexpr int KNIGHTLAYER = 6;
 
 
 //fbc
-constexpr int FRAME_SIZE_X = 1280;
-constexpr int FRAME_SIZE_Y = 720;
-
 constexpr int WeaponAndHeroDistance = 40;
 
 constexpr float FPS = 1 / 60;
 
 constexpr int isGun = -1;
-constexpr int isMelee = -2;//ï¿½ï¿½Õ½ in chinese
+constexpr int isMelee = -2;//½üÕ½ in chinese
 constexpr int Pistol = 1;
-//string PistolBulletPath = "Bullet\\PistolBullet.png";
 
+//two template function
 #define CREATE_FUNC_WITH_FILE(__TYPE__) \
 static __TYPE__* create(const char* filename) \
 { \
     __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
     if (pRet && pRet->initWithFile(filename) && pRet->init()) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
+        pRet = nullptr; \
+        return nullptr; \
+    } \
+}
+
+#define CREATE_FUNC_WITH_DEFAULT_FILE(__TYPE__,__FILE__) \
+static __TYPE__* create() \
+{ \
+    __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
+    if (pRet && pRet->initWithFile(__FILE__) && pRet->init()) \
     { \
         pRet->autorelease(); \
         return pRet; \

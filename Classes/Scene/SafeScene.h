@@ -18,11 +18,13 @@
 #include"cocos2d.h"
 #include "ui/CocosGUI.h"
 #include"AudioEngine.h"
-#include"..//Character/Knight.h"
-#include"..//Enemy/Enemy.h"
+#include"Actor\Character\Knight.h"
+#include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
+
 #include<vector>
 #include<string>
+#include<iostream>
 
 USING_NS_CC;
 using namespace std;
@@ -43,7 +45,7 @@ public:
 	~SafeScene();
 private:
 	Knight* knight = nullptr;
-	Enemy* enemy = nullptr;
+	GunEnemy* enemy = nullptr;
 
 	//useless now
 	//int SelectedBulletNum = 0;

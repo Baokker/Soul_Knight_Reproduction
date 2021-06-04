@@ -2,7 +2,7 @@
 #ifndef _BATTLESCENE_H_
 #define _BATTLESCENE_H_
 
-#include "Character\Knight.h"
+#include "Actor\Character\Knight.h"
 #include "BattleRoom.h"
 #include "Hall.h"
 #include "Const.h"
