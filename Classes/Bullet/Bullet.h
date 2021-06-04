@@ -23,13 +23,15 @@ it will go itself,and disappear(setvisible(false),stopallactions) itself.
 
 {
 	friend class Weapon;
-	friend class Knight;
-	friend class Enemy;
+	friend class Gun;
+	friend class FireGun;
+	friend class Melee;
 	friend class SafeScene;
 	friend class BattleScene;
 	public:
 		bool init();
 		CREATE_FUNC_WITH_FILE(Bullet);
+		CREATE_FUNC_WITH_DEFAULT_FILE(Bullet, "Bullet\\Bullet1.png");
 private:
 	int damage = 0;
 	int MoveSpeed = 10;

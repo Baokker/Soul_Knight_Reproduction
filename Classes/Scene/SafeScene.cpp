@@ -5,15 +5,7 @@
 * @modified name date
 */
 
-#include<iostream>
-#include<string>
-#include<map>
-#include "ui/CocosGUI.h"
 #include"SafeScene.h"
-#include"..//Character/knight.h"
-
-using namespace std;
-USING_NS_CC; //equals to using namespace cocos2d
 
 Scene* SafeScene::CreateScene()
 {
@@ -41,7 +33,7 @@ void SafeScene::update(float delta)
 	{
 		//bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
 		//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
-		auto bullet = Bullet::create("Bullet/yellowbullet.png");
+		auto bullet = Bullet::create();
 		addChild(bullet, 3);
 		knight->AttackwithGun(bullet);
 		knight->isShooting = false;
@@ -56,10 +48,10 @@ void SafeScene::update(float delta)
 	{
 		//battle
 		//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
-		auto bullet = Bullet::create("Bullet/Bullet1.png");
+		auto bullet = Bullet::create();
 		addChild(bullet, 3);
 		//addChild(bullets.at(SelectedBulletNum), 3);
-		enemy->Shoot(bullet);
+		enemy->AttackwithGun(bullet);
 		enemy->Wandering();
 	}
 	auto visiblesize = Director::getInstance()->getVisibleSize();
@@ -89,16 +81,16 @@ bool SafeScene::init()
 	}
 
 	//knight
-	knight = Knight::create("Character\\Knight.png");
+	knight = Knight::create();
 
 	this->addChild(knight, 1);
 	this->addChild(knight->weapon[knight->Holding], 1);
 
 	//enemy
-	enemy = Enemy::create("Enemy\\Alien\\enemy001.png");
+	enemy = GunEnemy::create();
 
 	this->addChild(enemy, 2);
-	this->addChild(enemy->weapon, 2);
+	this->addChild(enemy->GetWeapon(), 2);
 
 	this->scheduleUpdate();
 

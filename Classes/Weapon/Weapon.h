@@ -17,21 +17,94 @@ USING_NS_CC;
 
 class Weapon :public Sprite
 {
+	friend class Actor;
+
 	friend class Knight;
-	friend class SafeScene;
+
 	friend class Enemy;
-	friend class Bullet;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
 	friend class BattleScene;
 	public:
-		bool init();
-		bool Enemyinit();
+		virtual bool init();
 		void Shoot(Bullet* bullet);
 		void Attack();//Melee
-		CREATE_FUNC_WITH_FILE(Weapon);
-		CREATE_FUNC(Weapon);
+		CREATE_FUNC_WITH_FILE(Weapon);//for creating specific weapon
+		CREATE_FUNC(Weapon);//for enemy
+
+		int Getdamage();
+		int GetType();
+		void Setdamage(int num);
+		void SetType(int num);
 	private:
 		int Type = isGun;//default,can set it in inheritance
-		int damage = 2;
-		int Bulletspeed = 10;
+		int damage = 0;
+};
+
+class Gun :public Weapon
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(Gun);//for creating specific weapon
+	CREATE_FUNC(Gun);//for enemy
+
+	int GetBulletspeed();
+	void SetBulletspeed(int num);
+private:
+	int Bulletspeed = 10;
+};
+
+class FireGun:public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(FireGun);//for creating specific weapon
+	//CREATE_FUNC_WITH_DEFAULT_FILE(Weapon, "Weapon\\Pistol.png");//for knight
+
+private:
+};
+
+class Melee :public Weapon
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+public:
+	bool init();
+	void Attack();//Melee
+	CREATE_FUNC_WITH_FILE(Melee);//for creating specific weapon
+	CREATE_FUNC(Melee);//for enemy
+private:
 };
 #endif
