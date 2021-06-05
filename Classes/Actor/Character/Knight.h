@@ -26,13 +26,25 @@ class Knight : public Actor
 		* @function create a sprite of Knight
 		*/
 		bool init();
+
 		void setKnightKeyboardListener();
 		void initWeapon();
 		void AttackwithGun(Bullet *bullet);
 		void SwitchWeapon();
 		void AttackMelee();
+
+		bool CheckifDie();
+		void SetChangeDirection();
+		void SetAnimate();
+
+		void SetHP(int num);
+		int GetHP();
+		void SetMaxHP(int num);
+		int GetMaxHP();
+
 		void MoveinSafeScene();
 		~Knight();
+
 		CREATE_FUNC_WITH_FILE(Knight);
 		CREATE_FUNC_WITH_DEFAULT_FILE(Knight,"Character\\Knight.png");
 	private:

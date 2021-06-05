@@ -6,6 +6,7 @@
 */
 
 #include "Knight.h"
+#include"Scene/SafeScene.h"//for die situation
 
 static void problemLoading(const char* filename)
 {
@@ -155,6 +156,79 @@ void Knight::AttackMelee()
 	dynamic_cast<Melee*>(weapon[Holding])->Attack();
 }
 
+bool Knight::CheckifDie(){return HP <= 0;}
+
+void Knight::SetChangeDirection()
+{
+	//change the direction with the change of speed
+	auto ChangeDirection = [this](float) {
+		auto visiblesize = Director::getInstance()->getVisibleSize();
+		if (getPositionX() + GetMoveSpeedX() < 0 || getPositionX() + GetMoveSpeedX() > visiblesize.width)
+			SetMoveSpeedX(0);
+		if (getPositionY() + GetMoveSpeedY() < 0 || getPositionY() + GetMoveSpeedY() > visiblesize.height)
+			SetMoveSpeedY(0);
+		if (GetMoveSpeedX() > 0)
+		{
+			//knight
+			setFlippedX(false);
+			//weapon
+			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(false);
+		}
+		else if (GetMoveSpeedX() < 0)
+		{
+			//knight
+			setFlippedX(true);
+			//weapon
+			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+			weapon[Holding]->setFlippedX(true);
+		}
+		else//weapon
+		{
+			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
+		}
+	};
+
+	schedule(ChangeDirection, FPS, "ChangeDirection");
+}
+
+void Knight::SetAnimate()
+{
+	auto MoveAnimation = Animation::create();
+	std::string filename;
+	for (int i = 1; i <= 2; i++)
+	{
+		filename = "Character\\Knight" + std::to_string(i) + ".png";
+		MoveAnimation->addSpriteFrameWithFile(filename);
+	}
+	MoveAnimation->setLoops(-1);
+	MoveAnimation->setDelayPerUnit(0.1);
+	MoveAnimation->setRestoreOriginalFrame(true);
+	MoveAnimate = Animate::create(MoveAnimation);
+	MoveAnimate->retain();
+}
+
+void Knight::SetHP(int num)
+{
+	HP = num;
+}
+
+int Knight::GetHP()
+{
+	return HP;
+}
+
+void Knight::SetMaxHP(int num)
+{
+	MaxHP = num;
+}
+
+int Knight::GetMaxHP()
+{
+	return MaxHP;
+}
+
+
 void Knight::SwitchWeapon()//the scene should also update!
 {
 	if (isHavingOneWeapon)
@@ -188,53 +262,17 @@ bool Knight::init()
 	//weapon
 	initWeapon();
 
-	//change the direction with the change of speed
-	auto ChangeDirection = [this](float) {
-		auto visiblesize = Director::getInstance()->getVisibleSize();
-		if (getPositionX() + GetMoveSpeedX() <0 || getPositionX() + GetMoveSpeedX() >visiblesize.width)
-			SetMoveSpeedX(0);
-		if (getPositionY() + GetMoveSpeedY() <0 || getPositionY() + GetMoveSpeedY() >visiblesize.height)
-			SetMoveSpeedY(0);
-		if (GetMoveSpeedX() > 0)
-		{
-			//knight
-			setFlippedX(false);
-			//weapon
-			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
-			weapon[Holding]->setFlippedX(false);
-		}
-		else if (GetMoveSpeedX() < 0)
-		{
-			//knight
-			setFlippedX(true);
-			//weapon
-			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
-			weapon[Holding]->setFlippedX(true);
-		}
-		else//weapon
-		{
-			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
-		}
-	};
-
-	schedule(ChangeDirection, FPS, "ChangeDirection");
+	//change direction in every frame
+	SetChangeDirection();
 
 	//keyboard
 	setKnightKeyboardListener();
 
+	//check if die
+	
+
 	//animate
-	auto MoveAnimation = Animation::create();
-	std::string filename;
-	for (int i = 1; i <= 2; i++)
-	{
-		filename = "Character\\Knight" + std::to_string(i) + ".png";
-		MoveAnimation->addSpriteFrameWithFile(filename);
-	}
-	MoveAnimation->setLoops(-1);
-	MoveAnimation->setDelayPerUnit(0.1);
-	MoveAnimation->setRestoreOriginalFrame(true);
-	MoveAnimate = Animate::create(MoveAnimation);
-	MoveAnimate->retain();
+	SetAnimate();
 
 	return true;
 }
