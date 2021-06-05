@@ -57,7 +57,7 @@ void SafeScene::update(float delta)
 	auto visiblesize = Director::getInstance()->getVisibleSize();
 	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
-		auto battlescene = BattleScene::createScene();
+		auto battlescene = BattleScene::create();
 		Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
 	}
 }

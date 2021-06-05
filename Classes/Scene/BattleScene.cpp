@@ -1,4 +1,6 @@
 #include "BattleScene.h"
+#include "SafeScene.h"
+
 Scene* BattleScene::createScene() { return BattleScene::create(); }
 void BattleScene::menuCloseCallbackEnd(Ref* pSender) { Director::getInstance()->popScene(); }
 
@@ -17,14 +19,23 @@ bool BattleScene::init()
 
 	initRoom();
 	connectRoom(beginRoom);
+
 	this->scheduleUpdate();
 	return true;
 }
 
 void BattleScene::update(float delta) 
 {
+	//check if die
+	if (knight->CheckifDie())
+	{
+		auto safescene = SafeScene::CreateScene();
+		Director::getInstance()->replaceScene(TransitionFade::create(0.5, safescene, Color3B(255, 255, 255)));
+	}
+
 	updatePos();	
 
+	//check
 	if (knight->isMeleeing)
 	{
 		knight->AttackMelee();
