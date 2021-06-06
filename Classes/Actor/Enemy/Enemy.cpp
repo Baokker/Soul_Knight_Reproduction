@@ -77,6 +77,31 @@ void Enemy::Wandering()
 
 Weapon* Enemy::GetWeapon(){	return weapon;}
 
+void Enemy::SetAI()
+{
+}
+
+bool Enemy::CheckifDie(){return GetHP() <= 0;}
+
+void Enemy::Die()
+{
+	SetisAlive(false);
+	stopAllActions();
+	setVisible(false);
+	setPosition(0, 0);
+	unschedule("WeaponFollow");
+}
+
+bool Enemy::GetisAlive()
+{
+	return isAlive;
+}
+
+void Enemy::SetisAlive(bool flag)
+{
+	isAlive = flag;
+}
+
 bool Enemy::GetisInBattle(){return isInBattle;}
 
 void Enemy::SetMAX_HP(int num){MAX_HP = num;}

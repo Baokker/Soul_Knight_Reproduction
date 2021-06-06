@@ -63,6 +63,10 @@ void Gun::SetBulletspeed(int num)
 	Bulletspeed = num;
 }
 
+void Gun::Attack()
+{
+}
+
 void Weapon::Setdamage(int num)
 {
 	damage = num;
