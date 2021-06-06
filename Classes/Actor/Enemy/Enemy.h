@@ -28,11 +28,20 @@ class Enemy:public Actor
 		void SetWeapon(Weapon* myweapon);
 		Weapon* GetWeapon();
 
+		void SetAI();
+
+		bool CheckifDie();
+		void Die();
+
+		bool GetisAlive();
+		void SetisAlive(bool flag);
+
 		CREATE_FUNC_WITH_FILE(Enemy);
 		CREATE_FUNC_WITH_DEFAULT_FILE(Enemy, "Enemy\Alien\enemy002.png");
 	private:
 		Weapon* weapon = nullptr;
 		bool isInBattle = true;
+		bool isAlive = true;
 		int MAX_HP = 10;
 		int HP = 10;
 };

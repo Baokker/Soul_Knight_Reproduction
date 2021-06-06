@@ -63,6 +63,7 @@ public:
 
 	int GetBulletspeed();
 	void SetBulletspeed(int num);
+	void Attack();//the gun should also have melee function but with lower damages
 private:
 	int Bulletspeed = 10;
 };

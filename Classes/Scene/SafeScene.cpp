@@ -21,6 +21,8 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
+	enemy->SetHP(enemy->GetHP() - 1);
+
 	//knight
 	knight->MoveinSafeScene();
 
@@ -40,20 +42,27 @@ void SafeScene::update(float delta)
 	}
 	
 	//enemy
-	if (!enemy->isInBattle)
-	{
-		enemy->Wandering();
-	}
+	if (!enemy->GetisAlive()) {}
 	else
 	{
-		//battle
-		//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
-		auto bullet = Bullet::create();
-		addChild(bullet, 3);
-		//addChild(bullets.at(SelectedBulletNum), 3);
-		enemy->AttackwithGun(bullet);
-		enemy->Wandering();
+		if (enemy->CheckifDie())
+			enemy->Die();
+		else if (!enemy->isInBattle)
+		{
+			enemy->Wandering();
+		}
+		else
+		{
+			//battle
+			//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
+			auto bullet = Bullet::create();
+			addChild(bullet, 3);
+			//addChild(bullets.at(SelectedBulletNum), 3);
+			enemy->AttackwithGun(bullet);
+			enemy->Wandering();
+		}
 	}
+
 	auto visiblesize = Director::getInstance()->getVisibleSize();
 	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
