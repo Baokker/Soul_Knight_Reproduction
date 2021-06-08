@@ -5,7 +5,7 @@
 * @modified name date
 */
 
-#include"Enemy.h";
+#include"Enemy.h"
 
 bool Enemy::init()
 {
@@ -15,9 +15,15 @@ bool Enemy::init()
 	return true;
 }
 
-void Enemy::AttackwithGun(Bullet* bullet){}
+void Enemy::AttackwithGun(Bullet* bullet)
+{
+	dynamic_cast<Gun*>(GetWeapon())->Shoot(bullet);
+}
 
-void Enemy::AttackMelee(){}
+Rect Enemy::AttackMelee()
+{
+	return Rect();
+}
 
 void Enemy::Wandering()
 {
@@ -179,8 +185,8 @@ bool MeleeEnemy::init()
 	return true;
 }
 
-void MeleeEnemy::AttackMelee()
+Rect MeleeEnemy::AttackMelee()
 {
-	dynamic_cast<Melee*>(GetWeapon())->Attack();
+	return dynamic_cast<Melee*>(GetWeapon())->Attack();
 }
 

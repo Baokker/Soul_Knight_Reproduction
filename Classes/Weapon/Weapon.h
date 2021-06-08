@@ -10,7 +10,7 @@
 
 #include<cocos2d.h>
 #include"Const.h"
-#include"Bullet/Bullet.h"
+#include"..\Bullet\Bullet.h"
 #include<vector>
 
 USING_NS_CC;
@@ -30,7 +30,7 @@ class Weapon :public Sprite
 	public:
 		virtual bool init();
 		void Shoot(Bullet* bullet);
-		void Attack();//Melee
+		Rect Attack();//Melee
 		CREATE_FUNC_WITH_FILE(Weapon);//for creating specific weapon
 		CREATE_FUNC(Weapon);//for enemy
 
@@ -63,9 +63,12 @@ public:
 
 	int GetBulletspeed();
 	void SetBulletspeed(int num);
-	void Attack();//the gun should also have melee function but with lower damages
+	int GetMeleeDamage();
+	void SetMeleeDamage(int num);
+	Rect Attack();//the gun should also have melee function but with lower damages
 private:
 	int Bulletspeed = 10;
+	int MeleeDamage = 4;
 };
 
 class FireGun:public Gun
@@ -103,9 +106,16 @@ class Melee :public Weapon
 	friend class BattleScene;
 public:
 	bool init();
-	void Attack();//Melee
+	bool initAnimate();//default as knight's sword
+
+
+	Rect Attack();//Melee
 	CREATE_FUNC_WITH_FILE(Melee);//for creating specific weapon
 	CREATE_FUNC(Melee);//for enemy
+	~Melee();
 private:
+	Animate* animate = nullptr;
+	//bool isAnimateRunning = false;
+	bool isStartAnimate = false;
 };
 #endif
