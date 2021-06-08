@@ -17,7 +17,7 @@ class Enemy:public Actor
 	public:
 		bool init();
 		void AttackwithGun(Bullet* bullet);
-		void AttackMelee();
+		Rect AttackMelee();
 		void Wandering();
 
 		bool GetisInBattle();
@@ -40,7 +40,7 @@ class Enemy:public Actor
 		CREATE_FUNC_WITH_DEFAULT_FILE(Enemy, "Enemy\Alien\enemy002.png");
 	private:
 		Weapon* weapon = nullptr;
-		bool isInBattle = true;
+		bool isInBattle = false;
 		bool isAlive = true;
 		int MAX_HP = 10;
 		int HP = 10;
@@ -64,7 +64,7 @@ class MeleeEnemy :public Enemy
 	friend class BattleScene;
 public:
 	bool init();
-	void AttackMelee();
+	Rect AttackMelee();
 	CREATE_FUNC_WITH_FILE(MeleeEnemy);
 	CREATE_FUNC_WITH_DEFAULT_FILE(MeleeEnemy, "Enemy\Alien\enemy001.png");
 private:

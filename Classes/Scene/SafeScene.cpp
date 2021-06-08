@@ -21,24 +21,36 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
-	enemy->SetHP(enemy->GetHP() - 1);
-
 	//knight
 	knight->MoveinSafeScene();
 
 	if (knight->isMeleeing)
 	{
-		knight->AttackMelee();
+		if (knight->AttackMelee().intersectsRect(enemy->getBoundingBox()))
+		{
+			enemy->SetHP(enemy->GetHP() - dynamic_cast<Melee*>(knight->weapon[knight->Holding])->Getdamage());
+		}
+
 		knight->isMeleeing = false;
 	}
 	else if (knight->isShooting)
 	{
-		//bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
-		//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
-		auto bullet = Bullet::create();
-		addChild(bullet, 3);
-		knight->AttackwithGun(bullet);
+		if (knight->MP <= 0)
+		{
+			if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
+			{
+				enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+			}
+		}
+		else
+		{
+			auto bullet = Bullet::create();
+			addChild(bullet, 3);
+			knight->AttackwithGun(bullet);
+
+		}
 		knight->isShooting = false;
+
 	}
 	
 	//enemy
@@ -93,7 +105,8 @@ bool SafeScene::init()
 	knight = Knight::create();
 
 	this->addChild(knight, 1);
-	this->addChild(knight->weapon[knight->Holding], 1);
+	this->addChild(knight->weapon[0], 1);
+	this->addChild(knight->weapon[1], 1);
 
 	//enemy
 	enemy = GunEnemy::create();

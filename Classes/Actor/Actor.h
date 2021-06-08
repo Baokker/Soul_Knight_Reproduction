@@ -23,7 +23,7 @@ class Actor : public Sprite
 public:
 	bool init();
 	virtual void AttackwithGun(Bullet* bullet);
-	virtual void AttackMelee();
+	virtual Rect AttackMelee();
 	int GetMoveSpeed();
 	int GetMoveSpeedX();
 	int GetMoveSpeedY();

@@ -11,7 +11,7 @@ bool Actor::init() { return true; }
 
 void Actor::AttackwithGun(Bullet* bullet){}
 
-void Actor::AttackMelee(){}
+Rect Actor::AttackMelee() { return Rect(); }
 
 int Actor::GetMoveSpeed()
 {
