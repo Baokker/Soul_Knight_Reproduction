@@ -11,11 +11,13 @@ bool BattleScene::init()
 	this->knight = Knight::create();
 
 	this->addChild(knight);
-	this->addChild(knight->weapon[knight->Holding]);
+	this->addChild(knight->weapon[0]);
+	this->addChild(knight->weapon[1]);
 	knight->MoveSpeedX = knight->MoveSpeedY = 0;
 	knight->setPosition(visibleSize.width / 2, visibleSize.height / 2);
 	knight->setGlobalZOrder(6);
-	knight->weapon[knight->Holding]->setGlobalZOrder(6);
+	knight->weapon[0]->setGlobalZOrder(6);
+	knight->weapon[1]->setGlobalZOrder(6);
 
 	initRoom();
 	connectRoom(beginRoom);

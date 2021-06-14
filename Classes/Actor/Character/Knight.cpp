@@ -243,6 +243,16 @@ int Knight::GetMaxHP()
 	return MaxHP;
 }
 
+int Knight::GetMoney()
+{
+	return Money;
+}
+
+void Knight::SetMoney(int num)
+{
+	Money = num;
+}
+
 
 void Knight::SwitchWeapon()//the scene should also update!
 {
@@ -296,6 +306,19 @@ bool Knight::init()
 	SetAnimate();
 
 	return true;
+}
+
+void Knight::DeductBlood(int num)
+{
+	if (Shield > num)
+	{
+		Shield -= num;
+		return;
+	}
+	else
+	{
+		HP -= (num - Shield);
+	}
 }
 
 void Knight::MoveinSafeScene()

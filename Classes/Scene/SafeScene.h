@@ -21,6 +21,7 @@
 #include"Actor\Character\Knight.h"
 #include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
+#include"..\FloatText\FloatText.h"
 
 #include<vector>
 #include<string>
@@ -46,6 +47,7 @@ public:
 private:
 	Knight* knight = nullptr;
 	GunEnemy* enemy = nullptr;
+	MeleeEnemy* meleeenemy = nullptr;
 
 	//useless now
 	//int SelectedBulletNum = 0;

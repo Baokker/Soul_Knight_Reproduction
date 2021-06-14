@@ -41,6 +41,10 @@ void SafeScene::update(float delta)
 			{
 				enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
 			}
+			if (knight->AttackMeleeWithGun().intersectsRect(meleeenemy->getBoundingBox()))
+			{
+				meleeenemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+			}
 		}
 		else
 		{
@@ -57,29 +61,48 @@ void SafeScene::update(float delta)
 	if (!enemy->GetisAlive()) {}
 	else
 	{
+		enemy->AImonitor(knight);
+		//srand(time(NULL));
 		if (enemy->CheckifDie())
 			enemy->Die();
-		else if (!enemy->isInBattle)
+		else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
+		//if it is a meleeenemy just change the code related to attack 
 		{
-			enemy->Wandering();
-		}
-		else
-		{
-			//battle
-			//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
 			auto bullet = Bullet::create();
 			addChild(bullet, 3);
-			//addChild(bullets.at(SelectedBulletNum), 3);
 			enemy->AttackwithGun(bullet);
-			enemy->Wandering();
+		}
+	}
+
+	//meleeenemy
+	if (!meleeenemy->GetisAlive()) {}
+	else
+	{
+		meleeenemy->AImonitor(knight);
+		//srand(time(NULL));
+		if (meleeenemy->CheckifDie())
+			meleeenemy->Die();
+		else if (meleeenemy->GetisInBattle() && rand() % 10 < 1)//attack!
+		//if it is a meleemeleeenemy just change the code related to attack 
+		{
+			auto meleerect = meleeenemy->AttackMelee();
+			if (meleerect.intersectsRect(knight->getBoundingBox()))
+				knight->DeductBlood(meleeenemy->GetWeapon()->Getdamage());
 		}
 	}
 
 	auto visiblesize = Director::getInstance()->getVisibleSize();
-	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
+	if (knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
-		auto battlescene = BattleScene::create();
-		Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+		if (getChildByName("enter_game_reminder")==nullptr)
+		{
+			addChild(FloatText::create("Click J to start game", Vec2(visiblesize.width / 2, visiblesize.height - 60), 3),3,"enter_game_reminder");
+		}
+		if (knight->isGoingBattle)
+		{
+			auto battlescene = BattleScene::create();
+			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+		}
 	}
 }
 
@@ -110,9 +133,13 @@ bool SafeScene::init()
 
 	//enemy
 	enemy = GunEnemy::create();
+	meleeenemy = MeleeEnemy::create();
 
 	this->addChild(enemy, 2);
 	this->addChild(enemy->GetWeapon(), 2);
+
+	this->addChild(meleeenemy, 2);
+	this->addChild(meleeenemy->GetWeapon(), 2);
 
 	this->scheduleUpdate();
 

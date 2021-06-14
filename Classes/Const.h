@@ -32,6 +32,8 @@ constexpr int Pistol = 1;
 constexpr int MELEE_WIDTH = 120;
 constexpr int MELEE_HEIGHT = 120;
 
+constexpr int ATTACK_RANGE = 450;
+
 //two template function
 #define CREATE_FUNC_WITH_FILE(__TYPE__) \
 static __TYPE__* create(const char* filename) \
