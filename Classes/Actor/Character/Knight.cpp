@@ -298,6 +298,19 @@ bool Knight::init()
 	return true;
 }
 
+void Knight::DeductBlood(int num)
+{
+	if (Shield > num)
+	{
+		Shield -= num;
+		return;
+	}
+	else
+	{
+		HP -= (num - Shield);
+	}
+}
+
 void Knight::MoveinSafeScene()
 {
 	/*

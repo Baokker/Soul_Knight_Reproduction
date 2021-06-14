@@ -46,6 +46,7 @@ public:
 private:
 	Knight* knight = nullptr;
 	GunEnemy* enemy = nullptr;
+	MeleeEnemy* meleeenemy = nullptr;
 
 	//useless now
 	//int SelectedBulletNum = 0;
