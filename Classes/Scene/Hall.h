@@ -2,8 +2,8 @@
 #define _HALL_H_
 
 #include "cocos2d.h"
-#include "Const.h"
-#include "Actor/Knight.h"
+#include "..\Const.h"
+#include "..\Actor\Character\Knight.h"
 #include "MapRoom.h"
 
 USING_NS_CC;

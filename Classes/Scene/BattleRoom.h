@@ -4,8 +4,9 @@
 
 #include "cocos2d.h"
 #include "MapRoom.h"
-#include "Actor/Knight.h"
-#include "Const.h"
+#include "..\Actor\Character\Knight.h"
+#include "..\Const.h"
+#include "Actor/Enemy/Enemy.h"
 
 USING_NS_CC;
 
@@ -21,7 +22,7 @@ public:
 
 	virtual bool init();
 	void addMapElement();
-	bool boundaryCheck(Knight*, int&, int&);
+	bool boundaryCheck(Node*, int&, int&);
 	void setCenter(int, int);
 	void createDoor(int, int, int layer);
 	void closeDoor();
@@ -35,6 +36,8 @@ private:
 protected:
 	Vector<Sprite*> openedDoor;
 	Vector<Sprite*> closedDoor;
-
+	Vector<GunEnemy*> vecEnemy;
+	bool visited = false;
+	bool doorOpen = true;
 };
 #endif

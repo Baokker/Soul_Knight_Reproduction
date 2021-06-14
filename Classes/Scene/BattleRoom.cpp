@@ -111,6 +111,7 @@ void BattleRoom::addMapElement() {
 }
 void BattleRoom::closeDoor() 
 {
+	doorOpen = false;
 	for (auto sprite : openedDoor) 
 	{
 		sprite->setVisible(false);
@@ -124,6 +125,7 @@ void BattleRoom::closeDoor()
 
 void BattleRoom::openDoor() 
 {
+	doorOpen = true;
 	for (auto sprite : openedDoor)
 	{
 		sprite->setVisible(true);
@@ -135,34 +137,37 @@ void BattleRoom::openDoor()
 	}
 }
 
-bool BattleRoom::boundaryCheck(Knight* knight, int& ispeedX, int& ispeedY) 
+bool BattleRoom::boundaryCheck(Node* knight, int& ispeedX, int& ispeedY) 
 {
 	int knightX = knight->getPositionX();
 	int knightY = knight->getPositionY();
 
 	if (knightX >= upLeftX - FLOORWIDTH && knightX <= downRightX + FLOORWIDTH && knightY <= upLeftY + FLOORHEIGHT && knightY >= downRightY - FLOORHEIGHT) 
 	{
-			if (((upLeftY + FLOORHEIGHT / 2 - FLOORHEIGHT * (Height / 2 - 3)) >=knightY && knightY >= (downRightY + FLOORHEIGHT * (Height / 2 - 3))))  //check the door
+		if (doorOpen)
+		{
+			if (((upLeftY + FLOORHEIGHT / 2 - FLOORHEIGHT * (Height / 2 - 3)) >= knightY && knightY >= (downRightY + FLOORHEIGHT * (Height / 2 - 3))))  //check the door
 			{
 				if (ispeedX > 0 && knightX >= downRightX && !visDir[RIGHT])
 					ispeedX = 0;
 				if (ispeedX < 0 && knightX <= upLeftX && !visDir[LEFT])
 					ispeedX = 0;
 			}
-			else if (upLeftX + FLOORHEIGHT * (Height / 2 - 3) <= knightX && knightX <= downRightX - FLOORHEIGHT * (Height / 2 - 3)) 
+			else if (upLeftX + FLOORHEIGHT * (Height / 2 - 3) <= knightX && knightX <= downRightX - FLOORHEIGHT * (Height / 2 - 3))
 			{
 				if (ispeedY > 0 && knightY >= upLeftY + FLOORHEIGHT / 2 && !visDir[UP])
 					ispeedY = 0;
 				if (ispeedY < 0 && knightY <= downRightY && !visDir[DOWN])
 					ispeedY = 0;
 			}
-			else 
-			{
-				if (ispeedX > 0 && knightX >= downRightX) ispeedX = 0;
-				if (ispeedX < 0 && knightX <= upLeftX) ispeedX = 0;
-				if (ispeedY > 0 && knightY >= upLeftY) ispeedY = 0;
-				if (ispeedY < 0 && knightY <= downRightY) ispeedY = 0;
-			}
+		}
+		else 
+		{
+			if (ispeedX > 0 && knightX >= downRightX) ispeedX = 0;
+			if (ispeedX < 0 && knightX <= upLeftX) ispeedX = 0;
+			if (ispeedY > 0 && knightY >= upLeftY) ispeedY = 0;
+			if (ispeedY < 0 && knightY <= downRightY) ispeedY = 0;
+		}
 		return true;
 	}
 	return false;

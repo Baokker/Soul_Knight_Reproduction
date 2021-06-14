@@ -3,8 +3,8 @@
 #define _MAPROOM_H_
 
 #include "cocos2d.h"
-#include "Const.h"
-#include "Actor/Knight.h"
+#include "..\Const.h"
+#include "..\Actor\Character\Knight.h"
 
 USING_NS_CC;
 
@@ -28,6 +28,7 @@ protected:
 	int dir;
 	Knight* knight = nullptr;
 	int Height, Width;  // cnt of sprites in Height and Width
+	Vector<Sprite*> vecWall;
 };
 
 #endif  // _MAP_H_
