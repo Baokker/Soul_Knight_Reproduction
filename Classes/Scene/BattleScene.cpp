@@ -1,5 +1,6 @@
 #include "BattleScene.h"
 #include "SafeScene.h"
+#include"SetScene.h"
 
 Scene* BattleScene::createScene() { return BattleScene::create(); }
 void BattleScene::menuCloseCallbackEnd(Ref* pSender) { Director::getInstance()->popScene(); }
@@ -11,7 +12,8 @@ bool BattleScene::init()
 	this->knight = Knight::create();
 
 	this->addChild(knight);
-	this->addChild(knight->weapon[knight->Holding]);
+	this->addChild(knight->weapon[knight->Holding], 1);
+
 	knight->MoveSpeedX = knight->MoveSpeedY = 0;
 	knight->setPosition(visibleSize.width / 2, visibleSize.height / 2);
 	knight->setGlobalZOrder(6);
@@ -19,7 +21,57 @@ bool BattleScene::init()
 
 	initRoom();
 	connectRoom(beginRoom);
+	//menu_exit
+	auto exitImg = MenuItemImage::create("menu//exit.png", "menu//exit01.png", CC_CALLBACK_1(BattleScene::menuCloseCallbackEnd_menu, this));
+	auto exitmenu = Menu::create(exitImg, NULL);
+	exitmenu->setPosition(Vec2(visibleSize.width - 100, visibleSize.height - 100));
+	this->addChild(exitmenu, 100);
+	exitmenu->setGlobalZOrder(10);
+	//menu_set
+	auto setItem = MenuItemImage::create("menu\\set.png", "menu\\set.png", CC_CALLBACK_1(BattleScene::menuCloseCallbackSet_menu, this));
+	auto setmenu = Menu::create(setItem, NULL);
+	setmenu->setPosition(Vec2(visibleSize.width - 300, visibleSize.height - 100));
+	this->addChild(setmenu, 20);
+	setmenu->setGlobalZOrder(10);
+	//Status Bar
+	auto StatusBackGround = Sprite::create("Character//StatusBackground.png");
 
+	BloodLoadingBar = ui::LoadingBar::create("Character//StatusBlood.png");
+	ArmorLoadingBar = ui::LoadingBar::create("Character//StatusArmor.png");
+	MPLoadingBar = ui::LoadingBar::create("Character//StatusMP.png");
+
+	BloodLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+	ArmorLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+	MPLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+
+	StatusBackGround->setPosition(80, 680);
+	BloodLoadingBar->setPosition(Vec2(89, 698));
+	ArmorLoadingBar->setPosition(Vec2(89, 680));
+	MPLoadingBar->setPosition(Vec2(89, 664));
+
+	this->addChild(StatusBackGround, 100);
+	this->addChild(BloodLoadingBar, 100);
+	this->addChild(ArmorLoadingBar, 100);
+	this->addChild(MPLoadingBar, 100);
+	StatusBackGround->setGlobalZOrder(10);
+	BloodLoadingBar->setGlobalZOrder(10);
+	ArmorLoadingBar->setGlobalZOrder(10);
+	MPLoadingBar->setGlobalZOrder(10);
+	HPLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+	armorLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+	MPLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+
+	HPLabel->setPosition(Vec2(89, 698));
+	armorLabel->setPosition(Vec2(89, 680));
+	MPLabel->setPosition(Vec2(89, 664));
+
+
+	this->addChild(HPLabel, 100);
+	this->addChild(armorLabel, 100);
+	this->addChild(MPLabel, 100);
+	HPLabel->setGlobalZOrder(10);
+	armorLabel->setGlobalZOrder(10);
+	MPLabel->setGlobalZOrder(10);
 	this->scheduleUpdate();
 	return true;
 }
@@ -29,12 +81,21 @@ void BattleScene::update(float delta)
 	//check if die
 	if (knight->CheckifDie())
 	{
-		auto safescene = SafeScene::CreateScene();
+		auto safescene = SafeScene::create();
 		Director::getInstance()->replaceScene(TransitionFade::create(0.5, safescene, Color3B(255, 255, 255)));
 	}
 
 	updatePos();	
+	
+	//Status update
+	BloodLoadingBar->setPercent(this->knight->GetHP() * 100 / 5);
+	ArmorLoadingBar->setPercent(this->knight->GetShield() * 100 / 5);
+	MPLoadingBar->setPercent(float(this->knight->GetMP()) / 200.0f * 100);
 
+	HPLabel->setString(Value(this->knight->HP).asString() + "/5");
+	armorLabel->setString(Value(this->knight->Shield).asString() + "/5");
+	MPLabel->setString(Value(this->knight->MP).asString() + "/200");
+	//
 	//check
 	if (knight->isMeleeing)
 	{
@@ -46,8 +107,10 @@ void BattleScene::update(float delta)
 		auto bullet = Bullet::create("Bullet/yellowbullet.png");
 		addChild(bullet, 40);
 		knight->AttackwithGun(bullet);
+		//knight->deductHP(2);
 		knight->isShooting = false;
 	}
+	knight->resumeShield();
 }
 
 void BattleScene::updatePos() 
@@ -256,4 +319,16 @@ void BattleScene::connectRoom(BattleRoom* curRoom)
 		nextRoom->visDirCpy[(dir + 2) % 4] = false;  //have connected
 		connectRoom(nextRoom);
 	}
+}
+
+void BattleScene::menuCloseCallbackEnd_menu(Ref* pSender)
+{
+	//Director::getInstance()->popScene();
+	auto safescene = SafeScene::create();
+	Director::getInstance()->replaceScene(TransitionFade::create(0.5, safescene, Color3B(255, 255, 255)));
+}
+void BattleScene::menuCloseCallbackSet_menu(Ref* pSender)
+{
+	auto setscene = SetScene::create();
+	Director::getInstance()->pushScene(TransitionFade::create(0.5, setscene, Color3B(255, 255, 255)));
 }

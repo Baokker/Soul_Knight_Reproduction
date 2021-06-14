@@ -21,7 +21,7 @@
 #include"Actor\Character\Knight.h"
 #include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
-
+#include"Boxroom/Boxroom.h"
 #include<vector>
 #include<string>
 #include<iostream>
@@ -31,6 +31,7 @@ using namespace std;
 
 class SafeScene :public cocos2d::Scene
 {
+	friend class SetScene;
 public:
 	static Scene* CreateScene();
 
@@ -39,13 +40,23 @@ public:
 	virtual bool init();
 		
 	void menuCloseCallback(Ref* pSender);
-
+	void menuCloseCallbackSet(Ref* pSender);
 	CREATE_FUNC(SafeScene);//automatically call the create(),init(),and autorelease()
 
 	~SafeScene();
 private:
 	Knight* knight = nullptr;
 	GunEnemy* enemy = nullptr;
+	Box* box = nullptr;
+
+	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
+	ui::LoadingBar* ArmorLoadingBar = ui::LoadingBar::create();
+	ui::LoadingBar* MPLoadingBar = ui::LoadingBar::create();
+
+	Label* HPLabel;
+	Label* armorLabel;
+	Label* MPLabel;
+
 
 	//useless now
 	//int SelectedBulletNum = 0;

@@ -4,6 +4,7 @@
 
 #include "Actor\Character\Knight.h"
 #include "BattleRoom.h"
+#include "ui/CocosGUI.h"
 #include "Hall.h"
 #include "Const.h"
 #include "cocos2d.h"
@@ -17,6 +18,7 @@ using std::string;
 class BattleScene : public Scene 
 {
 	friend class SafeScene;
+	friend class SetScene;
 	static constexpr int SIZEMTX = 5;
 	static constexpr int MAXROOM = 6; // temporarily make it 6
 	CREATE_FUNC(BattleScene);
@@ -28,7 +30,8 @@ public:
 
 	void menuCloseCallbackEnd(cocos2d::Ref* pSender);
 	void menuCloseCallbackSet(cocos2d::Ref* pSender);
-
+	void menuCloseCallbackEnd_menu(Ref* pSender);
+	void menuCloseCallbackSet_menu(Ref* pSender);
 private:
 	void updatePos();
 	void initRoom();
@@ -46,6 +49,13 @@ private:
 	BattleRoom* endRoom = nullptr;
 	BattleRoom* battleRoom[SIZEMTX][SIZEMTX] = { nullptr };  // rooms
 
+	ui::LoadingBar* BloodLoadingBar;
+	ui::LoadingBar* ArmorLoadingBar;
+	ui::LoadingBar* MPLoadingBar;
+
+	Label* HPLabel;
+	Label* armorLabel;
+	Label* MPLabel;
 	//useless now
 	//int SelectedBulletNum = 0;
 	//int MaxBulletNum = 200;

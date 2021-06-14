@@ -34,7 +34,7 @@ public:
 
 	CREATE_FUNC(Actor);
 private:
-	int MoveSpeed = 10;
+	int MoveSpeed = 5;
 	int MoveSpeedX = 0;
 	int MoveSpeedY = 0;
 };

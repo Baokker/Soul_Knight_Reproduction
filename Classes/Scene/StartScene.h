@@ -30,14 +30,15 @@ USING_NS_CC;
 //simulate these codes in HelloWorldScene.h
 class StartScene :public cocos2d::Scene
 {
+	friend class SetScene;
 public:
 	static Scene* CreateScene();
-
+	int audioID;
 	virtual bool init();
 	
 	void menuPressToStart(Ref* pSender);
 	void menuCloseCallback(Ref* pSender);
-	
+	void menuCloseCallbackSet(Ref* pSender);
 	CREATE_FUNC(StartScene);//automatically call the create(),init(),and autorelease()
 };
 

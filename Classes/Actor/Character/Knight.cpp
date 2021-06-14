@@ -75,6 +75,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{	
+				j_press = true;
 				if (weapon[Holding]->Type == isGun)
 					isShooting = true;
 				else if (weapon[Holding]->Type == isMelee)
@@ -130,6 +131,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{
+				j_press = false;
 				isGoingBattle = false;
 				isShooting = false;
 				break;
@@ -228,6 +230,41 @@ int Knight::GetMaxHP()
 	return MaxHP;
 }
 
+void Knight::SetMP(int num)
+{
+	MP = num;
+}
+
+int Knight::GetMP()
+{
+	return MP;
+}
+void Knight::SetMaxMP(int num)
+{
+	MaxMP = num;
+}
+int Knight::GetMaxMP()
+{
+	return MaxMP;
+}
+void Knight::SetShield(int num)
+{
+	Shield = num;
+}
+int Knight::GetShield()
+{
+	return Shield;
+}
+void Knight::SetMaxShield(int num)
+{
+	MaxShield = num;
+}
+int Knight::GetMaxShield()
+{
+	return MaxShield;
+}
+
+
 
 void Knight::SwitchWeapon()//the scene should also update!
 {
@@ -291,3 +328,36 @@ void Knight::MoveinSafeScene()
 	//it has been scheduled in the init()(the lambda function)
 }
 
+
+
+void Knight::deductHP(int damage)
+{
+	preAttackedTime = curTime;
+	Shield -= damage;
+	if (Shield < 0)
+	{
+		if (HP + Shield <= 0)
+		{
+			HP = 0;
+			Shield = 0;
+		}
+		else
+		{
+			HP = HP + Shield;
+			Shield = 0;
+		}
+	}
+};
+
+void Knight::resumeShield()
+{
+	curTime++;
+
+	if (Shield == MaxShield) 
+		return;
+	if (curTime - preAttackedTime >= 180 &&
+		(curTime - preAttackedTime) % 55 == 0)
+	{
+		Shield++;
+	}
+}
