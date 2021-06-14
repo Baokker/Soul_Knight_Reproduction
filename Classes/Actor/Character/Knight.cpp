@@ -243,6 +243,16 @@ int Knight::GetMaxHP()
 	return MaxHP;
 }
 
+int Knight::GetMoney()
+{
+	return Money;
+}
+
+void Knight::SetMoney(int num)
+{
+	Money = num;
+}
+
 
 void Knight::SwitchWeapon()//the scene should also update!
 {

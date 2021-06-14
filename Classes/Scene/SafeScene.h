@@ -21,6 +21,7 @@
 #include"Actor\Character\Knight.h"
 #include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
+#include"..\FloatText\FloatText.h"
 
 #include<vector>
 #include<string>

@@ -44,6 +44,9 @@ class Knight : public Actor
 		void SetMaxHP(int num);
 		int GetMaxHP();
 
+		int GetMoney();
+		void SetMoney(int num);
+
 		void DeductBlood(int num);
 		void MoveinSafeScene();
 		~Knight();

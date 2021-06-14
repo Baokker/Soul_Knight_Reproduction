@@ -92,10 +92,17 @@ void SafeScene::update(float delta)
 	}
 
 	auto visiblesize = Director::getInstance()->getVisibleSize();
-	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
+	if (knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
-		auto battlescene = BattleScene::create();
-		Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+		if (getChildByName("enter_game_reminder")==nullptr)
+		{
+			addChild(FloatText::create("Click J to start game", Vec2(visiblesize.width / 2, visiblesize.height - 60), 3),3,"enter_game_reminder");
+		}
+		if (knight->isGoingBattle)
+		{
+			auto battlescene = BattleScene::create();
+			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+		}
 	}
 }
 
