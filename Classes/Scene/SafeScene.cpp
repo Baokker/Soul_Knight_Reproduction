@@ -57,6 +57,9 @@ void SafeScene::update(float delta)
 
 	}
 	
+	//bar
+	UpdateLoadingBar();
+
 	//enemy
 	if (!enemy->GetisAlive()) {}
 	else
@@ -104,6 +107,30 @@ void SafeScene::update(float delta)
 			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
 		}
 	}
+
+	if (box->isboxwithknight(knight))
+	{
+		if (box->isopened == false && knight->j_press == true)
+		{
+			box->setVisible(false);
+			box->isopened = true;
+			box->props[box->proptype]->setVisible(true);
+			knight->j_press = false;
+		}
+	}
+	if (box->ispropswithknight(knight) && box->isopened == true && knight->j_press == true)
+	{
+		if (box->proptype == 0)
+		{
+			knight->SetHP(min(knight->GetHP() + 2, knight->GetMaxHP()));
+			box->props[0]->setVisible(false);
+		}
+		else if (box->proptype == 1)
+		{
+			knight->SetMP(min(knight->GetMP() + 100, knight->GetMaxMP()));
+			box->props[1]->setVisible(false);
+		}
+	}
 }
 
 bool SafeScene::init()
@@ -124,6 +151,12 @@ bool SafeScene::init()
 		this->addChild(SafeBackground, 0);
 	}
 
+	//bar
+	SetLoadingBar();
+
+	//menu
+	SetMenu();
+
 	//knight
 	knight = Knight::create();
 
@@ -141,6 +174,13 @@ bool SafeScene::init()
 	this->addChild(meleeenemy, 2);
 	this->addChild(meleeenemy->GetWeapon(), 2);
 
+	//box
+	box = Box::create();
+	box->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
+	this->addChild(box, 3);
+	this->addChild(box->props[box->proptype], 4);
+	box->props[box->proptype]->setVisible(false);
+
 	this->scheduleUpdate();
 
 	return true;
@@ -151,6 +191,78 @@ void SafeScene::menuCloseCallback(Ref* pSender)
 	Director::getInstance()->end();
 }
 
+void SafeScene::SetLoadingBar()
+{
+	//Status bar
+	auto StatusBackGround = Sprite::create("Character//StatusBackground.png");
+
+	BloodLoadingBar = ui::LoadingBar::create("Character//StatusBlood.png");
+	ArmorLoadingBar = ui::LoadingBar::create("Character//StatusArmor.png");
+	MPLoadingBar = ui::LoadingBar::create("Character//StatusMP.png");
+
+	BloodLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+	ArmorLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+	MPLoadingBar->setDirection(ui::LoadingBar::Direction::LEFT);
+
+	StatusBackGround->setPosition(80, 680);
+	BloodLoadingBar->setPosition(Vec2(89, 698));
+	ArmorLoadingBar->setPosition(Vec2(89, 680));
+	MPLoadingBar->setPosition(Vec2(89, 664));
+
+	this->addChild(StatusBackGround, 100);
+	this->addChild(BloodLoadingBar, 100);
+	this->addChild(ArmorLoadingBar, 100);
+	this->addChild(MPLoadingBar, 100);
+
+	HPLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+	armorLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+	MPLabel = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 15);
+
+	HPLabel->setPosition(Vec2(89, 698));
+	armorLabel->setPosition(Vec2(89, 680));
+	MPLabel->setPosition(Vec2(89, 664));
+
+	this->addChild(HPLabel, 100);
+	this->addChild(armorLabel, 100);
+	this->addChild(MPLabel, 100);
+}
+
+void SafeScene::UpdateLoadingBar()
+{
+	//Status update
+	BloodLoadingBar->setPercent(this->knight->GetHP() * 100 / knight->MaxHP);
+	ArmorLoadingBar->setPercent(this->knight->GetShield() * 100 / knight->MaxShield);
+	MPLoadingBar->setPercent(float(this->knight->GetMP()) / float(knight->MaxMP) * 100);
+
+	HPLabel->setString(Value(this->knight->HP).asString() + "/" + Value(this->knight->MaxHP).asString());
+	armorLabel->setString(Value(this->knight->Shield).asString() + "/" + Value(this->knight->MaxShield).asString());
+	MPLabel->setString(Value(this->knight->MP).asString() + "/" + Value(this->knight->MP).asString());
+}
+
+void SafeScene::SetMenu()
+{
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	//menu_exit
+	auto closeItem = MenuItemImage::create("menu\\exit.png", "menu\\exit01.png", CC_CALLBACK_1(SafeScene::menuCloseCallback, this));
+	closeItem->setScale(0.75);
+	auto closemenu = Menu::create(closeItem, NULL);
+	closemenu->setPosition(Vec2(visibleSize.width - 80, visibleSize.height - 100));
+	this->addChild(closemenu, 1);
+
+	//menu_set
+	auto setItem = MenuItemImage::create("menu\\set.png", "menu\\set.png", CC_CALLBACK_1(SafeScene::menuCloseCallbackSet, this));
+	setItem->setScale(0.75);
+	auto setmenu = Menu::create(setItem, NULL);
+	setmenu->setPosition(Vec2(visibleSize.width - 200, visibleSize.height - 100));
+	this->addChild(setmenu, 1);
+}
+
 SafeScene::~SafeScene()
 {
+}
+
+void SafeScene::menuCloseCallbackSet(Ref* pSender)
+{
+	auto setscene = SetScene::create();
+	Director::getInstance()->pushScene(TransitionFade::create(0.5, setscene, Color3B(255, 255, 255)));
 }

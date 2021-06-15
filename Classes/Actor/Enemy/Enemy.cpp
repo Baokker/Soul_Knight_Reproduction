@@ -134,6 +134,16 @@ void Enemy::Die()
 	unschedule("WeaponFollow");
 }
 
+int Enemy::GetType()
+{
+	return Type;
+}
+
+void Enemy::SetType(int type)
+{
+	Type = type;
+}
+
 bool Enemy::GetisAlive()
 {
 	return isAlive;
@@ -197,6 +207,7 @@ bool GunEnemy::init()
 		}
 	};
 
+	SetType(GUN);
 	SetShortesetApproachDistance(180);
 	schedule(WeaponFollow, FPS, "WeaponFollow");
 	return true;
@@ -233,6 +244,7 @@ bool MeleeEnemy::init()
 		}
 	};
 
+	SetType(MELEE);
 	SetShortesetApproachDistance(60);
 	schedule(WeaponFollow, FPS, "WeaponFollow");
 	return true;

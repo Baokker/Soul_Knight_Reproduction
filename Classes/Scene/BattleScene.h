@@ -4,6 +4,7 @@
 
 #include "Actor\Character\Knight.h"
 #include "BattleRoom.h"
+#include "ui/CocosGUI.h"
 #include "Hall.h"
 #include "Const.h"
 #include "cocos2d.h"
@@ -29,8 +30,13 @@ public:
 	void menuCloseCallbackEnd(cocos2d::Ref* pSender);
 	void menuCloseCallbackSet(cocos2d::Ref* pSender);
 
+	void SetLoadingBar();
+	void SetMenu();
+
+	void UpdateLoadingBar();
+
 private:
-	void updatePos();
+	void updateAll();
 	void initRoom();
 	void getNextRoom(int, int, BattleRoom*, queue<BattleRoom*>&);
 	void randomGenerate(int, int);
@@ -41,11 +47,19 @@ private:
 	int cntRoom = 0;
 	Knight* knight;
 	Vector<Hall*> vecHall;
+	Vector<Bullet*> vecBullet;
 
 	BattleRoom* beginRoom = nullptr;
 	BattleRoom* endRoom = nullptr;
 	BattleRoom* battleRoom[SIZEMTX][SIZEMTX] = { nullptr };  // rooms
 
+	ui::LoadingBar* BloodLoadingBar;
+	ui::LoadingBar* ArmorLoadingBar;
+	ui::LoadingBar* MPLoadingBar;
+
+	Label* HPLabel;
+	Label* armorLabel;
+	Label* MPLabel;
 	//useless now
 	//int SelectedBulletNum = 0;
 	//int MaxBulletNum = 200;

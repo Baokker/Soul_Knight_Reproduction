@@ -44,8 +44,9 @@ void MapRoom::createWall(int X, int Y, int layer, bool addShadow)
 	case 1:dir = "Map//" + sceneType + "//wall2.png"; break;
 	}
 	Sprite* wall=nullptr;
-	wall = Sprite::create(dir, Rect(0, 0, 40, 35));		//upside,to show the layer diff
+	wall = Sprite::create(dir, Rect(0, 0, 40, 40));		//upside,to show the layer diff
 	this->addChild(wall,layer);
+	vecWall.pushBack(wall);
 	wall->setGlobalZOrder(layer);
 	wall->setPosition(X, Y+WALLHEIGHT-FLOORHEIGHT);
 	wall = Sprite::create(dir, Rect(0, 35, 40, 25));	//down part

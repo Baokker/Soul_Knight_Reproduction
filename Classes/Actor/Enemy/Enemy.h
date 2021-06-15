@@ -34,6 +34,9 @@ class Enemy:public Actor
 		bool CheckifDie();
 		void Die();
 
+		int GetType();
+		void SetType(int type);
+
 		bool GetisAlive();
 		void SetisAlive(bool flag);
 
@@ -49,6 +52,7 @@ class Enemy:public Actor
 		bool isAlive = true;
 		int MAX_HP = 10;
 		int HP = 10;
+		int Type = GUN;
 };
 
 class GunEnemy :public Enemy

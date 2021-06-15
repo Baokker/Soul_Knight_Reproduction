@@ -33,14 +33,6 @@ void Gun::Shoot(Bullet* bullet)
 	bullet->setVisible(true);
 	bullet->damage = Getdamage();
 	bullet->MoveSpeed = GetBulletspeed();
-	if (isFlippedX())
-	{
-		bullet->MoveSpeedX = -bullet->MoveSpeed;
-	}
-	else
-	{
-		bullet->MoveSpeedX = +bullet->MoveSpeed;
-	}
 }
 
 int Gun::GetBulletspeed() { return Bulletspeed; }

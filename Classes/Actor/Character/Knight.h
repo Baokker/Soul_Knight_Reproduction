@@ -39,10 +39,24 @@ class Knight : public Actor
 		void SetChangeDirection();
 		void SetAnimate();
 
+		void Getbuff(int num);
+
+		void deductHP(int damage);  //Blood deduction
+		void resumeShield();        //Restore armor
+
 		void SetHP(int num);
 		int GetHP();
+		void SetMP(int num);
+		int GetMP();
 		void SetMaxHP(int num);
 		int GetMaxHP();
+		void SetMaxMP(int num);
+		int GetMaxMP();
+
+		void SetShield(int num);
+		int GetShield();
+		void SetMaxShield(int num);
+		int GetMaxShield();
 
 		int GetMoney();
 		void SetMoney(int num);
@@ -61,7 +75,8 @@ class Knight : public Actor
 		int MaxShield = 5;
 		int Shield = 5;
 
-		int Money = 0;
+		static int Money;
+		bool j_press = false;
 		
 		Weapon* weapon[2] = {};
 		int Holding = 0;//decide which weapon to hold
@@ -78,5 +93,6 @@ class Knight : public Actor
 		Animate* MoveAnimate = nullptr;
 
 		bool isGoingBattle = false;
+		time_t preAttackedTime = 0, curTime = 0;
 };
 #endif

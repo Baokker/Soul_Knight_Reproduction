@@ -8,6 +8,8 @@
 #include "Knight.h"
 #include"Scene/SafeScene.h"//for die situation
 
+int Knight::Money = 0;
+
 static void problemLoading(const char* filename)
 {
 	log("Error while loading:%s\n",filename);
@@ -75,6 +77,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{	
+				j_press = true;
 				if (weapon[Holding]->Type == isGun)
 					isShooting = true;
 				else if (weapon[Holding]->Type == isMelee)
@@ -130,6 +133,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{
+				j_press = false;
 				isGoingBattle = false;
 				isShooting = false;
 				break;
@@ -223,6 +227,57 @@ void Knight::SetAnimate()
 	MoveAnimate->retain();
 }
 
+void Knight::Getbuff(int bufftype)
+{
+	if (bufftype == 0)
+	{
+		SetMaxHP(GetMaxHP() + 1);
+		SetHP(GetHP() + 1);
+	}
+	else if (bufftype == 1)
+	{
+		SetMaxMP(GetMaxMP() + 60);
+		SetMP(GetMP() + 60);
+	}
+	else if (bufftype == 2)
+	{
+		SetMaxShield(GetMaxShield() + 1);
+		SetShield(GetShield() + 1);
+	}
+}
+
+void Knight::deductHP(int damage)
+{
+	preAttackedTime = curTime;
+	Shield -= damage;
+	if (Shield < 0)
+	{
+		if (HP + Shield <= 0)
+		{
+			HP = 0;
+			Shield = 0;
+		}
+		else
+		{
+			HP = HP + Shield;
+			Shield = 0;
+		}
+	}
+}
+
+void Knight::resumeShield()
+{
+	curTime++;
+
+	if (Shield == MaxShield)
+		return;
+	if (curTime - preAttackedTime >= 180 &&
+		(curTime - preAttackedTime) % 55 == 0)
+	{
+		Shield++;
+	}
+}
+
 void Knight::SetHP(int num)
 {
 	HP = num;
@@ -233,6 +288,16 @@ int Knight::GetHP()
 	return HP;
 }
 
+void Knight::SetMP(int num)
+{
+	MP = num;
+}
+
+int Knight::GetMP()
+{
+	return MP;
+}
+
 void Knight::SetMaxHP(int num)
 {
 	MaxHP = num;
@@ -241,6 +306,36 @@ void Knight::SetMaxHP(int num)
 int Knight::GetMaxHP()
 {
 	return MaxHP;
+}
+
+void Knight::SetMaxMP(int num)
+{
+	MaxMP = num;
+}
+
+int Knight::GetMaxMP()
+{
+	return MaxMP;
+}
+
+void Knight::SetShield(int num)
+{
+	Shield = num;
+}
+
+int Knight::GetShield()
+{
+	return Shield;
+}
+
+void Knight::SetMaxShield(int num)
+{
+	MaxShield = num;
+}
+
+int Knight::GetMaxShield()
+{
+	return MaxShield;
 }
 
 int Knight::GetMoney()

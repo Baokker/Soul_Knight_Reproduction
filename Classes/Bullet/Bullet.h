@@ -35,7 +35,7 @@ it will go itself,and disappear(setvisible(false),stopallactions) itself.
 private:
 	int damage = 0;
 	int MoveSpeed = 10;
-	int MoveSpeedX = 0;
+	int MoveSpeedX = 10;
 	int MoveSpeedY = 0;
 	//animation
 };
