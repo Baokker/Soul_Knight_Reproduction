@@ -21,8 +21,6 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
-	enemy->SetHP(enemy->GetHP() - 1);
-
 	//knight
 	knight->MoveinSafeScene();
 
@@ -37,44 +35,75 @@ void SafeScene::update(float delta)
 	//
 	if (knight->isMeleeing)
 	{
-		knight->AttackMelee();
+		if (knight->AttackMelee().intersectsRect(enemy->getBoundingBox()))
+		{
+			enemy->SetHP(enemy->GetHP() - dynamic_cast<Melee*>(knight->weapon[knight->Holding])->Getdamage());
+		}
+
 		knight->isMeleeing = false;
 	}
 	else if (knight->isShooting)
 	{
-		//bullets.at(SelectedBulletNum)->removeFromParentAndCleanup(true);
-		//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/yellowbullet.png");
-		auto bullet = Bullet::create();
-		addChild(bullet, 3);
-		knight->AttackwithGun(bullet);
+		if (knight->MP <= 0)
+		{
+			if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
+			{
+				enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+			}
+			if (knight->AttackMeleeWithGun().intersectsRect(meleeenemy->getBoundingBox()))
+			{
+				meleeenemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+			}
+		}
+		else
+		{
+			auto bullet = Bullet::create();
+			addChild(bullet, 3);
+			knight->AttackwithGun(bullet);
+
+		}
 		knight->isShooting = false;
+
 	}
 	
 	//enemy
 	if (!enemy->GetisAlive()) {}
 	else
 	{
+		enemy->AImonitor(knight);
+		//srand(time(NULL));
 		if (enemy->CheckifDie())
 			enemy->Die();
-		else if (!enemy->isInBattle)
+		else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
+		//if it is a meleeenemy just change the code related to attack 
 		{
-			enemy->Wandering();
-		}
-		else
-		{
-			//battle
-			//bullets.at(SelectedBulletNum) = Bullet::create("Bullet/Bullet1.png");
 			auto bullet = Bullet::create();
 			addChild(bullet, 3);
-			//addChild(bullets.at(SelectedBulletNum), 3);
 			enemy->AttackwithGun(bullet);
-			enemy->Wandering();
+		}
+	}
+
+	//meleeenemy
+	if (!meleeenemy->GetisAlive()) {}
+	else
+	{
+		meleeenemy->AImonitor(knight);
+		//srand(time(NULL));
+		if (meleeenemy->CheckifDie())
+			meleeenemy->Die();
+		else if (meleeenemy->GetisInBattle() && rand() % 10 < 1)//attack!
+		//if it is a meleemeleeenemy just change the code related to attack 
+		{
+			auto meleerect = meleeenemy->AttackMelee();
+			if (meleerect.intersectsRect(knight->getBoundingBox()))
+				knight->DeductBlood(meleeenemy->GetWeapon()->Getdamage());
 		}
 	}
 
 	auto visiblesize = Director::getInstance()->getVisibleSize();
-	if (knight->isGoingBattle && knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
+	if (knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
+<<<<<<< HEAD
 		auto battlescene = BattleScene::create();
 		Director::getInstance()->pushScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
 	}
@@ -102,6 +131,16 @@ void SafeScene::update(float delta)
 		{
 			knight->SetMP(min(knight->GetMP() + 100, knight->GetMaxMP()));
 			box->props[1]->setVisible(false);
+=======
+		if (getChildByName("enter_game_reminder")==nullptr)
+		{
+			addChild(FloatText::create("Click J to start game", Vec2(visiblesize.width / 2, visiblesize.height - 60), 3),3,"enter_game_reminder");
+		}
+		if (knight->isGoingBattle)
+		{
+			auto battlescene = BattleScene::create();
+			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 		}
 	}
 }
@@ -158,6 +197,7 @@ bool SafeScene::init()
 	//knight
 	knight = Knight::create();
 
+<<<<<<< HEAD
 	this->addChild(knight, 5);
 	this->addChild(knight->weapon[knight->Holding], 5);
 	//box
@@ -178,12 +218,21 @@ bool SafeScene::init()
 	auto setmenu = Menu::create(setItem, NULL);
 	setmenu->setPosition(Vec2(visibleSize.width - 300, visibleSize.height - 100));
 	this->addChild(setmenu, 1);
+=======
+	this->addChild(knight, 1);
+	this->addChild(knight->weapon[0], 1);
+	this->addChild(knight->weapon[1], 1);
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 
 	//enemy
 	enemy = GunEnemy::create();
+	meleeenemy = MeleeEnemy::create();
 
 	this->addChild(enemy, 2);
 	this->addChild(enemy->GetWeapon(), 2);
+
+	this->addChild(meleeenemy, 2);
+	this->addChild(meleeenemy->GetWeapon(), 2);
 
 	this->scheduleUpdate();
 

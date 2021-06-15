@@ -14,7 +14,7 @@ bool Weapon::init()
 
 void Weapon::Shoot(Bullet* bullet){}
 
-void Weapon::Attack(){}
+Rect Weapon::Attack() { return Rect(); }
 
 bool Gun::init()
 {
@@ -43,50 +43,79 @@ void Gun::Shoot(Bullet* bullet)
 	}
 }
 
-int Gun::GetBulletspeed()
+int Gun::GetBulletspeed() { return Bulletspeed; }
+
+int Weapon::Getdamage() { return damage; }
+
+int Weapon::GetType() { return Type; }
+
+void Gun::SetBulletspeed(int num) { Bulletspeed = num; }
+
+int Gun::GetMeleeDamage() { return MeleeDamage; }
+
+void Gun::SetMeleeDamage(int num) { MeleeDamage = num; }
+
+Rect Gun::Attack()
 {
-	return Bulletspeed;
+	runAction(RotateBy::create(0.2, 360));
+
+	auto result = Rect(getPositionX() - MELEE_WIDTH / 2, getPositionY() - MELEE_HEIGHT / 2, MELEE_WIDTH, MELEE_HEIGHT);
+	return result;
 }
 
-int Weapon::Getdamage()
-{
-	return damage;
-}
+void Weapon::Setdamage(int num) { damage = num; }
 
-int Weapon::GetType()
-{
-	return Type;
-}
-
-void Gun::SetBulletspeed(int num)
-{
-	Bulletspeed = num;
-}
-
-void Gun::Attack()
-{
-}
-
-void Weapon::Setdamage(int num)
-{
-	damage = num;
-}
-
-void Weapon::SetType(int num)
-{
-	Type = num;
-}
+void Weapon::SetType(int num) { Type = num; }
 
 bool Melee::init()
 {
 	if (!Weapon::init())
 		return false;
 
-	Setdamage(3);
+	Setdamage(5);
 	SetType(isMelee);
 	return true;
 }
 
-void Melee::Attack()
+bool Melee::initAnimate()//default as knight's sword
 {
+	auto MeleeAnimation = Animation::create();
+	std::string filename;
+	for (int i = 1; i <= 4; i++)
+	{
+		filename = "Weapon\\Sword"+std::to_string(i)+".png";
+		MeleeAnimation->addSpriteFrameWithFile(filename);
+	}
+	MeleeAnimation->setDelayPerUnit(0.025);
+	MeleeAnimation->setRestoreOriginalFrame(true);
+	animate = Animate::create(MeleeAnimation);
+	animate->retain();
+
+	return animate != nullptr;
+}
+
+Rect Melee::Attack()
+{
+	if (animate != nullptr)
+	{
+		if (!isStartAnimate)
+		{
+			isStartAnimate = true;
+			runAction(animate);
+		}
+		else
+		{
+			if (animate->isDone())
+				runAction(animate);
+		}
+	}
+
+	auto result = Rect(getPositionX() - MELEE_WIDTH / 2, getPositionY() - MELEE_HEIGHT / 2, MELEE_WIDTH, MELEE_HEIGHT);
+	return result;
+}
+
+Melee::~Melee()
+{
+	if (animate != nullptr)
+		animate->release();
 }

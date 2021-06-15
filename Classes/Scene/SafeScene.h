@@ -21,7 +21,12 @@
 #include"Actor\Character\Knight.h"
 #include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
+<<<<<<< HEAD
 #include"Boxroom/Boxroom.h"
+=======
+#include"..\FloatText\FloatText.h"
+
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 #include<vector>
 #include<string>
 #include<iostream>
@@ -47,6 +52,7 @@ public:
 private:
 	Knight* knight = nullptr;
 	GunEnemy* enemy = nullptr;
+<<<<<<< HEAD
 	Box* box = nullptr;
 
 	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
@@ -57,6 +63,9 @@ private:
 	Label* armorLabel;
 	Label* MPLabel;
 
+=======
+	MeleeEnemy* meleeenemy = nullptr;
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 
 	//useless now
 	//int SelectedBulletNum = 0;

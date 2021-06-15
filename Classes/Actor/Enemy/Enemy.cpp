@@ -5,19 +5,29 @@
 * @modified name date
 */
 
-#include"Enemy.h";
+#include"Enemy.h"
+#include"..\Character\Knight.h"
 
 bool Enemy::init()
 {
 	if (!Actor::init())
 		return false;
 
+	SetMoveSpeed(5);
+	SetShortesetApproachDistance(60);
+	isInBattle = false;
 	return true;
 }
 
-void Enemy::AttackwithGun(Bullet* bullet){}
+void Enemy::AttackwithGun(Bullet* bullet)
+{
+	dynamic_cast<Gun*>(GetWeapon())->Shoot(bullet);
+}
 
-void Enemy::AttackMelee(){}
+Rect Enemy::AttackMelee()
+{
+	return Rect();
+}
 
 void Enemy::Wandering()
 {
@@ -77,8 +87,40 @@ void Enemy::Wandering()
 
 Weapon* Enemy::GetWeapon(){	return weapon;}
 
-void Enemy::SetAI()
+void Enemy::AImonitor(Knight* knight)//need knight to adjust
 {
+	if (!GetisAlive())
+		return;
+	int distanceX = knight->getPositionX() - getPositionX();
+	if (distanceX > 0)
+	{
+		setFlippedX(false);
+	}
+	else if (distanceX < 0)
+	{
+		setFlippedX(true);
+	}
+
+	int distanceY = knight->getPositionY() - getPositionY();
+	int distance = sqrt(pow(distanceX, 2) + pow(distanceY, 2));
+	if (distance >= ATTACK_RANGE || distance <= GetShortestApproachDistance())
+	{
+		if (distance >= ATTACK_RANGE)
+		{
+			SetisInBattle(false);
+			Wandering();
+		}
+		return;
+	}
+	else
+	{
+		SetisInBattle(true);
+		srand(time(NULL));
+		if (rand() % 4 < 1)
+			setPosition(getPositionX() + GetMoveSpeed() * distanceX / distance, getPositionY() + GetMoveSpeed() * distanceY / distance);
+	}
+
+	return;
 }
 
 bool Enemy::CheckifDie(){return GetHP() <= 0;}
@@ -102,7 +144,22 @@ void Enemy::SetisAlive(bool flag)
 	isAlive = flag;
 }
 
+void Enemy::SetShortesetApproachDistance(int num)
+{
+	ShortestApproachDistance = num;
+}
+
+int Enemy::GetShortestApproachDistance()
+{
+	return ShortestApproachDistance;
+}
+
 bool Enemy::GetisInBattle(){return isInBattle;}
+
+void Enemy::SetisInBattle(bool flag)
+{
+	isInBattle = flag;
+}
 
 void Enemy::SetMAX_HP(int num){MAX_HP = num;}
 
@@ -131,15 +188,16 @@ bool GunEnemy::init()
 		if (isFlippedX())//right direction as default
 		{
 			GetWeapon()->setPosition(getPosition());
-			GetWeapon()->setFlippedX(false);
+			GetWeapon()->setFlippedX(true);
 		}
 		else
 		{
 			GetWeapon()->setPosition(getPosition());
-			GetWeapon()->setFlippedX(true);
+			GetWeapon()->setFlippedX(false);
 		}
 	};
 
+	SetShortesetApproachDistance(180);
 	schedule(WeaponFollow, FPS, "WeaponFollow");
 	return true;
 }
@@ -175,12 +233,13 @@ bool MeleeEnemy::init()
 		}
 	};
 
+	SetShortesetApproachDistance(60);
 	schedule(WeaponFollow, FPS, "WeaponFollow");
 	return true;
 }
 
-void MeleeEnemy::AttackMelee()
+Rect MeleeEnemy::AttackMelee()
 {
-	dynamic_cast<Melee*>(GetWeapon())->Attack();
+	return dynamic_cast<Melee*>(GetWeapon())->Attack();
 }
 

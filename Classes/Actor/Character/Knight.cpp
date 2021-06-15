@@ -153,12 +153,22 @@ void Knight::AttackwithGun(Bullet *bullet)
 	dynamic_cast<Gun*>(weapon[Holding])->Shoot(bullet);
 }
 
-void Knight::AttackMelee()
+Rect Knight::AttackMelee()
 {
-	dynamic_cast<Melee*>(weapon[Holding])->Attack();
+	return dynamic_cast<Melee*>(weapon[Holding])->Attack();
+}
+
+Rect Knight::AttackMeleeWithGun()
+{
+	return dynamic_cast<Gun*>(weapon[Holding])->Attack();
 }
 
 bool Knight::CheckifDie(){return HP <= 0;}
+
+bool Knight::CheckifMPenough()
+{
+	return MP >= 0;
+}
 
 void Knight::SetChangeDirection()
 {
@@ -174,20 +184,25 @@ void Knight::SetChangeDirection()
 			//knight
 			setFlippedX(false);
 			//weapon
-			weapon[Holding]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
-			weapon[Holding]->setFlippedX(false);
+			weapon[0]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+			weapon[1]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+			weapon[0]->setFlippedX(false);
+			weapon[1]->setFlippedX(false);
 		}
 		else if (GetMoveSpeedX() < 0)
 		{
 			//knight
 			setFlippedX(true);
 			//weapon
-			weapon[Holding]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
-			weapon[Holding]->setFlippedX(true);
+			weapon[0]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+			weapon[1]->setPosition(getPositionX() - WeaponAndHeroDistance, getPositionY());
+			weapon[0]->setFlippedX(true);
+			weapon[1]->setFlippedX(true);
 		}
 		else//weapon
 		{
-			weapon[Holding]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
+			weapon[0]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
+			weapon[1]->setPosition(getPositionX() + (isFlippedX() ? -1 : 1) * WeaponAndHeroDistance, getPositionY());
 		}
 	};
 
@@ -230,6 +245,7 @@ int Knight::GetMaxHP()
 	return MaxHP;
 }
 
+<<<<<<< HEAD
 void Knight::SetMP(int num)
 {
 	MP = num;
@@ -264,6 +280,17 @@ int Knight::GetMaxShield()
 	return MaxShield;
 }
 
+=======
+int Knight::GetMoney()
+{
+	return Money;
+}
+
+void Knight::SetMoney(int num)
+{
+	Money = num;
+}
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 
 
 void Knight::SwitchWeapon()//the scene should also update!
@@ -274,10 +301,14 @@ void Knight::SwitchWeapon()//the scene should also update!
 	if (Holding == 0)
 	{
 		Holding = 1;
+		weapon[0]->setVisible(false);
+		weapon[1]->setVisible(true);
 	}
 	else if (Holding == 1)
 	{
 		Holding = 0;
+		weapon[1]->setVisible(false);
+		weapon[0]->setVisible(true);
 	}	
 }
 
@@ -285,6 +316,11 @@ void Knight::initWeapon()
 {
 	weapon[0] = Gun::create("Weapon\\Gun.png");
 	weapon[0]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+	weapon[1] = Melee::create("Weapon\\Sword.png");
+	dynamic_cast<Melee*>(weapon[1])->initAnimate();
+	weapon[1]->setPosition(getPositionX() + WeaponAndHeroDistance, getPositionY());
+	weapon[1]->setVisible(false);
+	Holding = 0;
 }
 
 bool Knight::init()
@@ -305,13 +341,23 @@ bool Knight::init()
 	//keyboard
 	setKnightKeyboardListener();
 
-	//check if die
-	
-
 	//animate
 	SetAnimate();
 
 	return true;
+}
+
+void Knight::DeductBlood(int num)
+{
+	if (Shield > num)
+	{
+		Shield -= num;
+		return;
+	}
+	else
+	{
+		HP -= (num - Shield);
+	}
 }
 
 void Knight::MoveinSafeScene()

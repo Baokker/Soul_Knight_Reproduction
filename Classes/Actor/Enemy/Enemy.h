@@ -17,10 +17,11 @@ class Enemy:public Actor
 	public:
 		bool init();
 		void AttackwithGun(Bullet* bullet);
-		void AttackMelee();
+		Rect AttackMelee();
 		void Wandering();
 
 		bool GetisInBattle();
+		void SetisInBattle(bool flag);
 		void SetMAX_HP(int num);
 		int GetMAX_HP();
 		int GetHP();
@@ -28,7 +29,7 @@ class Enemy:public Actor
 		void SetWeapon(Weapon* myweapon);
 		Weapon* GetWeapon();
 
-		void SetAI();
+		void AImonitor(Knight* knight);
 
 		bool CheckifDie();
 		void Die();
@@ -36,11 +37,15 @@ class Enemy:public Actor
 		bool GetisAlive();
 		void SetisAlive(bool flag);
 
+		void SetShortesetApproachDistance(int num);
+		int GetShortestApproachDistance();
+
 		CREATE_FUNC_WITH_FILE(Enemy);
 		CREATE_FUNC_WITH_DEFAULT_FILE(Enemy, "Enemy\Alien\enemy002.png");
 	private:
+		int ShortestApproachDistance = 60;//the enemy can't overlap with the knight
 		Weapon* weapon = nullptr;
-		bool isInBattle = true;
+		bool isInBattle = false;
 		bool isAlive = true;
 		int MAX_HP = 10;
 		int HP = 10;
@@ -52,7 +57,7 @@ class GunEnemy :public Enemy
 	friend class BattleScene;
 public:
 	bool init();
-	void AttackwithGun(Bullet* bullet);
+	void AttackwithGun(Bullet* bullet) override;
 	CREATE_FUNC_WITH_FILE(GunEnemy);
 	CREATE_FUNC_WITH_DEFAULT_FILE(GunEnemy, "Enemy\\Alien\\enemy002.png");
 private:
@@ -64,9 +69,9 @@ class MeleeEnemy :public Enemy
 	friend class BattleScene;
 public:
 	bool init();
-	void AttackMelee();
+	Rect AttackMelee() override;
 	CREATE_FUNC_WITH_FILE(MeleeEnemy);
-	CREATE_FUNC_WITH_DEFAULT_FILE(MeleeEnemy, "Enemy\Alien\enemy001.png");
+	CREATE_FUNC_WITH_DEFAULT_FILE(MeleeEnemy, "Enemy\\Alien\\enemy001.png");
 private:
 };
 #endif

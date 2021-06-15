@@ -31,9 +31,11 @@ class Knight : public Actor
 		void initWeapon();
 		void AttackwithGun(Bullet *bullet);
 		void SwitchWeapon();
-		void AttackMelee();
+		Rect AttackMelee();
+		Rect AttackMeleeWithGun();
 
 		bool CheckifDie();
+		bool CheckifMPenough();
 		void SetChangeDirection();
 		void SetAnimate();
 
@@ -45,6 +47,7 @@ class Knight : public Actor
 		void SetMaxHP(int num);
 		int GetMaxHP();
 
+<<<<<<< HEAD
 		void SetMP(int num);
 		int GetMP();
 		void SetMaxMP(int num);
@@ -55,6 +58,12 @@ class Knight : public Actor
 		void SetMaxShield(int num);
 		int GetMaxShield();
 
+=======
+		int GetMoney();
+		void SetMoney(int num);
+
+		void DeductBlood(int num);
+>>>>>>> 0076bf1933eac1908f6446072b1c64920fd45843
 		void MoveinSafeScene();
 		~Knight();
 
@@ -81,8 +90,8 @@ class Knight : public Actor
 		
 		bool isWeaponChanged = false;
 		
-		bool isHavingOneWeapon = true;
-		bool isHavingTwoWeapon = false;
+		bool isHavingOneWeapon = false;
+		bool isHavingTwoWeapon = true;
 		Animate* MoveAnimate = nullptr;
 
 		bool isGoingBattle = false;
