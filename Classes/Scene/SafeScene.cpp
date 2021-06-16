@@ -112,6 +112,7 @@ void SafeScene::update(float delta)
 		}
 	}
 
+
 	if (knight->getBoundingBox().intersectsRect(spear->getBoundingBox()) && !knight->CheckifHavingWeapon(spear))
 	{
 		if (knight->PickupWeapon(spear))
