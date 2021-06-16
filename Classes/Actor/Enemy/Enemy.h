@@ -64,6 +64,7 @@ public:
 	void AttackwithGun(Bullet* bullet) override;
 	CREATE_FUNC_WITH_FILE(GunEnemy);
 	CREATE_FUNC_WITH_DEFAULT_FILE(GunEnemy, "Enemy\\Alien\\enemy002.png");
+	static GunEnemy* create(std::string scenetype);
 private:
 };
 
@@ -76,6 +77,7 @@ public:
 	Rect AttackMelee() override;
 	CREATE_FUNC_WITH_FILE(MeleeEnemy);
 	CREATE_FUNC_WITH_DEFAULT_FILE(MeleeEnemy, "Enemy\\Alien\\enemy001.png");
+	static MeleeEnemy* create(std::string scenetype);
 private:
 };
 #endif

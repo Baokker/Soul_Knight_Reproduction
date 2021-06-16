@@ -26,9 +26,14 @@ void SafeScene::update(float delta)
 
 	if (knight->isMeleeing)
 	{
-		if (knight->AttackMelee().intersectsRect(enemy->getBoundingBox()))
+		auto attackmelee = knight->AttackMelee();
+		if (attackmelee.intersectsRect(enemy->getBoundingBox()))
 		{
-			enemy->SetHP(enemy->GetHP() - dynamic_cast<Melee*>(knight->weapon[knight->Holding])->Getdamage());
+			enemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
+		}
+		else if (attackmelee.intersectsRect(meleeenemy->getBoundingBox()))
+		{
+			meleeenemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
 		}
 
 		knight->isMeleeing = false;
@@ -54,7 +59,6 @@ void SafeScene::update(float delta)
 
 		}
 		knight->isShooting = false;
-
 	}
 	
 	//bar
@@ -105,6 +109,17 @@ void SafeScene::update(float delta)
 		{
 			auto battlescene = BattleScene::create();
 			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
+		}
+	}
+
+
+	if (knight->getBoundingBox().intersectsRect(spear->getBoundingBox()) && !knight->CheckifHavingWeapon(spear))
+	{
+		if (knight->PickupWeapon(spear))
+		{
+			auto temp = knight->weapon[knight->Holding];
+			knight->weapon[knight->Holding] = spear;
+			spear = temp;
 		}
 	}
 
@@ -165,8 +180,9 @@ bool SafeScene::init()
 	this->addChild(knight->weapon[1], 1);
 
 	//enemy
-	enemy = GunEnemy::create();
-	meleeenemy = MeleeEnemy::create();
+	srand(time(0));
+	enemy = GunEnemy::create(SceneType[rand() % SceneType.size()]);
+	meleeenemy = MeleeEnemy::create(SceneType[rand() % SceneType.size()]);
 
 	this->addChild(enemy, 2);
 	this->addChild(enemy->GetWeapon(), 2);
@@ -180,6 +196,11 @@ bool SafeScene::init()
 	this->addChild(box, 3);
 	this->addChild(box->props[box->proptype], 4);
 	box->props[box->proptype]->setVisible(false);
+
+	//pick up weapon test
+	spear = Spear::create();
+	spear->setPosition(Vec2(visibleSize.width / 3, visibleSize.height / 3));
+	addChild(spear, 1);
 
 	this->scheduleUpdate();
 
