@@ -108,6 +108,8 @@ public:
 	bool init();
 	bool initAnimate();//default as knight's sword
 
+	Animate* GetAnimate();
+	void SetAnimate(Animate* my_animate);
 
 	Rect Attack();//Melee
 	CREATE_FUNC_WITH_FILE(Melee);//for creating specific weapon
@@ -117,5 +119,25 @@ private:
 	Animate* animate = nullptr;
 	//bool isAnimateRunning = false;
 	bool isStartAnimate = false;
+};
+
+class Spear :public Melee
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+public:
+	bool initAnimate();
+	bool init();
+	CREATE_FUNC_WITH_FILE(Spear);
+	CREATE_FUNC_WITH_DEFAULT_FILE(Spear, "Weapon\\Spear.png");
+
 };
 #endif

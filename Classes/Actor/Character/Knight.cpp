@@ -133,6 +133,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{
+				isPickingupWeapon = true;
 				j_press = false;
 				isGoingBattle = false;
 				isShooting = false;
@@ -366,6 +367,25 @@ void Knight::SwitchWeapon()//the scene should also update!
 		weapon[1]->setVisible(false);
 		weapon[0]->setVisible(true);
 	}	
+}
+
+bool Knight::CheckifHavingWeapon(Weapon* target)
+{
+	return weapon[0] == target || weapon[1] == target;
+}
+
+bool Knight::PickupWeapon(Weapon* pickedweapon)//函数调用不能改变实参指针变量的值，但可以改变实参指针变量所指向变量的值。
+{
+	if (isPickingupWeapon == false)
+		return false;
+
+	auto OriginalPosition = pickedweapon->getPosition();
+	pickedweapon->setPosition(getPosition());
+	weapon[Holding]->setPosition(OriginalPosition);
+
+	isPickingupWeapon = false;
+
+	return true;
 }
 
 void Knight::initWeapon()

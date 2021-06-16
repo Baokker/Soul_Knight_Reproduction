@@ -1,10 +1,12 @@
 #ifndef _CONST_H_
 #define _CONST_H_
+
+#include<string>
+#include<map>
 #include "cocos2d.h"
 
 //hyq
 constexpr int CNTDIR = 4;
-
 
 enum Direction { RIGHT, UP, LEFT, DOWN };
 constexpr int DIRX[CNTDIR] = { 1, 0, -1, 0 };  // right up left down
@@ -21,6 +23,11 @@ constexpr int KNIGHTLAYER = 6;
 
 
 //fbc
+using std::string;
+using std::vector;
+
+const vector<string> SceneType{ "Alien" ,"Forest","Ghost","Ice","Knight","Lava","Skeleton" };
+
 constexpr int WeaponAndHeroDistance = 50;
 
 constexpr float FPS = 1 / 60;

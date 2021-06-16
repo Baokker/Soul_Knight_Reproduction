@@ -86,6 +86,16 @@ bool Melee::initAnimate()//default as knight's sword
 	return animate != nullptr;
 }
 
+Animate* Melee::GetAnimate()
+{
+	return animate;
+}
+
+void Melee::SetAnimate(Animate* my_animate)
+{
+	animate = my_animate;
+}
+
 Rect Melee::Attack()
 {
 	if (animate != nullptr)
@@ -110,4 +120,30 @@ Melee::~Melee()
 {
 	if (animate != nullptr)
 		animate->release();
+}
+
+bool Spear::initAnimate()
+{
+	auto SpearAnimation = Animation::create();
+	std::string filename;
+	for (int i = 1; i <= 5; i++)
+	{
+		filename = "Weapon\\Spear" + std::to_string(i) + ".png";
+		SpearAnimation->addSpriteFrameWithFile(filename);
+	}
+	SpearAnimation->setDelayPerUnit(0.025);
+	SpearAnimation->setRestoreOriginalFrame(true);
+	SetAnimate(Animate::create(SpearAnimation));
+	GetAnimate()->retain();
+
+	return GetAnimate() != nullptr;
+}
+
+bool Spear::init()
+{
+	if (!Melee::init())
+		return false;
+
+	initAnimate();
+	Setdamage(8);
 }

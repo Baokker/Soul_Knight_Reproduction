@@ -218,6 +218,22 @@ void GunEnemy::AttackwithGun(Bullet* bullet)
 	dynamic_cast<Gun*>(GetWeapon())->Shoot(bullet);
 }
 
+GunEnemy* GunEnemy::create(std::string scenetype)
+{
+	GunEnemy* pRet = new(std::nothrow) GunEnemy(); 
+	if (pRet && pRet->initWithFile("Enemy\\"+scenetype+"\\enemy002.png") && pRet->init()) 
+	{ 
+		pRet->autorelease(); 
+		return pRet; 
+	} 
+	else 
+	{ 
+		delete pRet;
+		pRet = nullptr; 
+		return nullptr; 
+	} 
+}
+
 bool MeleeEnemy::init()
 {
 	if (!Enemy::init())
@@ -253,5 +269,21 @@ bool MeleeEnemy::init()
 Rect MeleeEnemy::AttackMelee()
 {
 	return dynamic_cast<Melee*>(GetWeapon())->Attack();
+}
+
+MeleeEnemy* MeleeEnemy::create(std::string scenetype)
+{
+	MeleeEnemy* pRet = new(std::nothrow) MeleeEnemy();
+	if (pRet && pRet->initWithFile("Enemy\\" + scenetype + "\\enemy001.png") && pRet->init())
+	{
+		pRet->autorelease();
+		return pRet;
+	}
+	else
+	{
+		delete pRet;
+		pRet = nullptr;
+		return nullptr;
+	}
 }
 

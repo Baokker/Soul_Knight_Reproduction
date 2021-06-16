@@ -59,7 +59,9 @@ private:
 	MeleeEnemy* meleeenemy = nullptr;
 
 	Box* box = nullptr;
-		
+	
+	Weapon* spear = nullptr;
+
 	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* ArmorLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* MPLoadingBar = ui::LoadingBar::create();

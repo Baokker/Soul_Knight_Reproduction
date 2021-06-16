@@ -31,6 +31,9 @@ class Knight : public Actor
 		void initWeapon();
 		void AttackwithGun(Bullet *bullet);
 		void SwitchWeapon();
+		bool CheckifHavingWeapon(Weapon* target);
+		bool PickupWeapon(Weapon* pickedweapon);
+
 		Rect AttackMelee();
 		Rect AttackMeleeWithGun();
 
@@ -88,6 +91,7 @@ class Knight : public Actor
 		
 		bool isWeaponChanged = false;
 		
+		bool isPickingupWeapon = false;
 		bool isHavingOneWeapon = false;
 		bool isHavingTwoWeapon = true;
 		Animate* MoveAnimate = nullptr;
