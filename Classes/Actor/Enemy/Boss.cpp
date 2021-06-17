@@ -17,6 +17,7 @@ bool Boss::init()
 	int BOSS_HP = 100;
 	SetHP(100);
 	SetMAX_HP(100);
+	GetWeapon()->SetCD(600);
 
 	return true;
 }
@@ -31,6 +32,8 @@ Rect Boss::AttackMelee()
 	runAction(RotateBy::create(0.5, 360));
 	auto Curposition = getPosition();
 	auto AttackRange = getContentSize().width;
+
+	GetWeapon()->SetCurtime(1);
 	return Rect(Curposition.x - AttackRange / 2, Curposition.y - AttackRange / 2, AttackRange, AttackRange);
 }
 
@@ -41,6 +44,8 @@ void Boss::Teleport(Knight* knight)
 	auto fadein = FadeIn::create(0.5);
 	auto seq = Sequence::create(fadeout, moveto, fadein, NULL);
 	runAction(seq);
+
+	GetWeapon()->SetCurtime(1);
 }
 
 void Boss::ShootManyBullets(vector<Bullet*> bullets)//unadapted

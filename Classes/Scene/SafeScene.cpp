@@ -29,10 +29,9 @@ void SafeScene::update(float delta)
 		//srand(time(NULL));
 		if (boss->CheckifDie())
 			boss->Die();
-		else if (boss->GetisInBattle() && rand() % 3 < 1)//attack!
+		else if (boss->GetisInBattle())//attack!
 		//if it is a meleeenemy just change the code related to attack 
 		{
-			srand(time(0));
 			switch (rand() % 3)
 			{
 			case 0:
@@ -46,6 +45,7 @@ void SafeScene::update(float delta)
 				break;
 			case 2:
 				auto poison = Poison::createAndBindwithKnight(boss, knight);
+				boss->GetWeapon()->SetCurtime(1);
 				addChild(poison, 3);
 				break;
 			}
@@ -60,41 +60,30 @@ void SafeScene::update(float delta)
 	{
 		auto attackmelee = knight->AttackMelee();
 		if (attackmelee.intersectsRect(enemy->getBoundingBox()))
-		{
 			enemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
-		}
+		
 		else if (attackmelee.intersectsRect(meleeenemy->getBoundingBox()))
-		{
 			meleeenemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
-		}
+		
 		else if (attackmelee.intersectsRect(boss->getBoundingBox()))
-		{
 			boss->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
-		}
-
-		knight->isMeleeing = false;
 	}
 	else if (knight->isShooting)
 	{
-		if (knight->MP <= 0)
+		if (knight->GetMP() <= 0)
 		{
 			if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
-			{
 				enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
-			}
+			
 			if (knight->AttackMeleeWithGun().intersectsRect(meleeenemy->getBoundingBox()))
-			{
 				meleeenemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
-			}
 		}
 		else
 		{
 			auto bullet = Bullet::create();
 			addChild(bullet, 3);
 			knight->AttackwithGun(bullet);
-
 		}
-		knight->isShooting = false;
 	}
 	
 	//bar
@@ -105,10 +94,9 @@ void SafeScene::update(float delta)
 	else
 	{
 		enemy->AImonitor(knight);
-		//srand(time(NULL));
 		if (enemy->CheckifDie())
 			enemy->Die();
-		else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
+		else if (enemy->GetisInBattle())//attack!
 		//if it is a meleeenemy just change the code related to attack 
 		{
 			auto bullet = Bullet::create();
@@ -125,13 +113,11 @@ void SafeScene::update(float delta)
 		//srand(time(NULL));
 		if (meleeenemy->CheckifDie())
 			meleeenemy->Die();
-		else if (meleeenemy->GetisInBattle() && rand() % 10 < 1)//attack!
-		//if it is a meleemeleeenemy just change the code related to attack 
-		{
-			auto meleerect = meleeenemy->AttackMelee();
-			if (meleerect.intersectsRect(knight->getBoundingBox()))
+		else if (meleeenemy->GetisInBattle())//attack!
+			//if it is a meleeenemy just change the code related to attack 
+			if (meleeenemy->AttackMelee().intersectsRect(knight->getBoundingBox()))
 				knight->DeductBlood(meleeenemy->GetWeapon()->Getdamage());
-		}
+
 	}
 
 	auto visiblesize = Director::getInstance()->getVisibleSize();
@@ -253,6 +239,8 @@ bool SafeScene::init()
 
 	//auto poison = Poison::createAndBindwithKnight(enemy, knight);
 	//addChild(poison,3);
+
+	srand(time(NULL));
 
 	this->scheduleUpdate();
 

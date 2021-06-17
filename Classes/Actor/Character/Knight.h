@@ -28,8 +28,10 @@ class Knight : public Actor
 		bool init();
 
 		void setKnightKeyboardListener();
+
 		void initWeapon();
 		void AttackwithGun(Bullet *bullet);
+		Weapon* Getweapon();
 		void SwitchWeapon();
 		bool CheckifHavingWeapon(Weapon* target);
 		bool PickupWeapon(Weapon* pickedweapon);

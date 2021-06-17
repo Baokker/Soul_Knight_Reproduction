@@ -39,9 +39,22 @@ class Weapon :public Sprite
 		int GetType();
 		void Setdamage(int num);
 		void SetType(int num);
+
+		void initCheckCD();
+
+		bool CheckifCanAttack();
+
+		int GetCurtime();
+		void SetCurtime(int num);
+
+		int GetCD();
+		void SetCD(int num);
+
 	private:
 		int Type = isGun;//default,can set it in inheritance
 		int damage = 0;
+		int CD = 30;
+		int Curtime = 0;
 };
 
 class Gun :public Weapon

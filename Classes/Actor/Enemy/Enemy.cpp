@@ -114,7 +114,11 @@ void Enemy::AImonitor(Knight* knight)//need knight to adjust
 	}
 	else
 	{
-		SetisInBattle(true);
+		if (GetWeapon()->CheckifCanAttack())
+			SetisInBattle(true);
+		else
+			SetisInBattle(false);
+
 		srand(time(NULL));
 		if (rand() % 4 < 1)
 			setPosition(getPositionX() + GetMoveSpeed() * distanceX / distance, getPositionY() + GetMoveSpeed() * distanceY / distance);
@@ -194,6 +198,8 @@ bool GunEnemy::init()
 	auto gun = Gun::create();//don't need an image of weapon
 	SetWeapon(gun);
 
+	GetWeapon()->SetCD(15);
+
 	auto WeaponFollow = [this](float) {
 		if (isFlippedX())//right direction as default
 		{
@@ -246,6 +252,8 @@ bool MeleeEnemy::init()
 	//weapon
 	auto melee = Melee::create();//don't need an image of weapon
 	SetWeapon(melee);
+
+	GetWeapon()->SetCD(300);
 
 	auto WeaponFollow = [this](float) {
 		if (isFlippedX())//right direction as default

@@ -78,10 +78,17 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{	
 				j_press = true;
-				if (weapon[Holding]->Type == isGun)
+
+				if (weapon[Holding]->Type == isGun && Getweapon()->CheckifCanAttack())
 					isShooting = true;
-				else if (weapon[Holding]->Type == isMelee)
+				else
+					isShooting = false;
+				
+				if (weapon[Holding]->Type == isMelee && Getweapon()->CheckifCanAttack())
 					isMeleeing = true;
+				else
+					isMeleeing = false;
+
 				isGoingBattle = true;
 				break;
 			}
@@ -137,6 +144,7 @@ void Knight::setKnightKeyboardListener()
 				j_press = false;
 				isGoingBattle = false;
 				isShooting = false;
+				isMeleeing = false;
 				break;
 			}
 		}
@@ -154,16 +162,27 @@ void Knight::setKnightKeyboardListener()
 void Knight::AttackwithGun(Bullet *bullet)
 {
 	dynamic_cast<Gun*>(weapon[Holding])->Shoot(bullet);
+
+	isShooting = false;
+}
+
+Weapon* Knight::Getweapon()
+{
+	return weapon[Holding];
 }
 
 Rect Knight::AttackMelee()
 {
 	return dynamic_cast<Melee*>(weapon[Holding])->Attack();
+
+	isMeleeing = false;
 }
 
 Rect Knight::AttackMeleeWithGun()
 {
 	return dynamic_cast<Gun*>(weapon[Holding])->Attack();
+
+	isShooting = false;
 }
 
 bool Knight::CheckifDie(){return HP <= 0;}
@@ -379,7 +398,7 @@ bool Knight::CheckifHavingWeapon(Weapon* target)
 	return weapon[0] == target || weapon[1] == target;
 }
 
-bool Knight::PickupWeapon(Weapon* pickedweapon)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½Ü¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½
+bool Knight::PickupWeapon(Weapon* pickedweapon)//º¯Êýµ÷ÓÃ²»ÄÜ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿µÄÖµ£¬µ«¿ÉÒÔ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿ËùÖ¸Ïò±äÁ¿µÄÖµ¡£
 {
 	if (CheckifHavingWeapon(pickedweapon))
 		return false;

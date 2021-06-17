@@ -9,6 +9,8 @@
 bool Weapon::init()
 {
 	setPosition(Director::getInstance()->getWinSize().width / 2, Director::getInstance()->getWinSize().height / 2);
+	initCheckCD();
+
 	return true;
 }
 
@@ -21,6 +23,7 @@ bool Gun::init()
 	if (!Weapon::init())
 		return false;
 
+	SetCD(12);
 	SetType(isGun);
 	Setdamage(2);
 	SetBulletPath("Bullet\\Bullet1.png");
@@ -34,6 +37,8 @@ void Gun::Shoot(Bullet* bullet)
 	bullet->setVisible(true);
 	bullet->Setdamage(Getdamage());
 	bullet->SetMoveSpeed(GetBulletspeed());
+
+	SetCurtime(1);
 }
 
 int Gun::GetBulletspeed() { return Bulletspeed; }
@@ -62,6 +67,8 @@ Rect Gun::Attack()
 {
 	runAction(RotateBy::create(0.2, 360));
 
+	SetCurtime(1);
+
 	auto result = Rect(getPositionX() - MELEE_WIDTH / 2, getPositionY() - MELEE_HEIGHT / 2, MELEE_WIDTH, MELEE_HEIGHT);
 	return result;
 }
@@ -70,11 +77,49 @@ void Weapon::Setdamage(int num) { damage = num; }
 
 void Weapon::SetType(int num) { Type = num; }
 
+void Weapon::initCheckCD()
+{
+	auto checkcd = [this](float)
+	{
+		if (GetCurtime() == 0)
+			return;
+		SetCurtime(GetCurtime() == GetCD() + 1 ? 0 : GetCurtime() + 1);
+	};
+
+	schedule(checkcd, FPS, "checkcd");
+}
+
+bool Weapon::CheckifCanAttack()
+{
+	return GetCurtime() == 0;
+}
+
+int Weapon::GetCurtime()
+{
+	return Curtime;
+}
+
+void Weapon::SetCurtime(int num)
+{
+	Curtime = num;
+}
+
+int Weapon::GetCD()
+{
+	return CD;
+}
+
+void Weapon::SetCD(int num)
+{
+	CD = num;
+}
+
 bool Melee::init()
 {
 	if (!Weapon::init())
 		return false;
 
+	SetCD(15);
 	Setdamage(5);
 	SetType(isMelee);
 	return true;
@@ -123,6 +168,8 @@ Rect Melee::Attack()
 		}
 	}
 
+	SetCurtime(1);
+
 	auto result = Rect(getPositionX() - MELEE_WIDTH / 2, getPositionY() - MELEE_HEIGHT / 2, MELEE_WIDTH, MELEE_HEIGHT);
 	return result;
 }
@@ -155,6 +202,7 @@ bool Spear::init()
 	if (!Melee::init())
 		return false;
 
+	SetCD(30);
 	initAnimate();
 	Setdamage(8);
 }
@@ -164,6 +212,7 @@ bool SubmachineGun::init()
 	if (!Gun::init())
 		return false;
 
+	SetCD(6);
 	Setdamage(3);
 	SetBulletspeed(12);
 	SetBulletPath("Bullet\\SubmachineGunBullet.png");
