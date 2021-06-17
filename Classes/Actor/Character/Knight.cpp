@@ -379,7 +379,7 @@ bool Knight::CheckifHavingWeapon(Weapon* target)
 	return weapon[0] == target || weapon[1] == target;
 }
 
-bool Knight::PickupWeapon(Weapon* pickedweapon)//º¯Êıµ÷ÓÃ²»ÄÜ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿µÄÖµ£¬µ«¿ÉÒÔ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿ËùÖ¸Ïò±äÁ¿µÄÖµ¡£
+bool Knight::PickupWeapon(Weapon* pickedweapon)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½Ü¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½
 {
 	if (CheckifHavingWeapon(pickedweapon))
 		return false;
