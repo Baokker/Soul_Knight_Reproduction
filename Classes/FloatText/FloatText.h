@@ -16,7 +16,7 @@ class FloatText :public Label
 {
 public:
 	bool init(Vec2 position,float time);
-	static FloatText* create(const char* text, Vec2 position, float duration);
+	static FloatText* create(const char* text, Vec2 position, float duration, int fontsize = 20);
 
 	int distance = 15;
 	float duration = 0.5;

@@ -32,6 +32,18 @@ it will go itself,and disappear(setvisible(false),stopallactions) itself.
 		bool init();
 		CREATE_FUNC_WITH_FILE(Bullet);
 		CREATE_FUNC_WITH_DEFAULT_FILE(Bullet, "Bullet\\Bullet1.png");
+		int Getdamage();
+		void Setdamage(int num);
+
+		int GetMoveSpeed();
+		void SetMoveSpeed(int num);
+
+		int GetMoveSpeedX();
+		void SetMoveSpeedX(int num);
+
+		int GetMoveSpeedY();
+		void SetMoveSpeedY(int num);
+
 private:
 	int damage = 0;
 	int MoveSpeed = 10;

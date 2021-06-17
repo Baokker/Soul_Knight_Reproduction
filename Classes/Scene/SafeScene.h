@@ -24,6 +24,7 @@
 #include"..\FloatText\FloatText.h"
 #include"SetScene.h"
 #include"Box/Box.h"
+#include"Actor/Enemy/Boss.h"
 
 #include<vector>
 #include<string>
@@ -61,7 +62,9 @@ private:
 	Box* box = nullptr;
 	
 	Weapon* spear = nullptr;
+	Weapon* submachinegun = nullptr;
 
+	Boss* boss = nullptr;
 	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* ArmorLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* MPLoadingBar = ui::LoadingBar::create();

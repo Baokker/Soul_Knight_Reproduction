@@ -79,5 +79,4 @@ static __TYPE__* create() \
     } \
 }
 
-
 #endif  // !_CONST_H_

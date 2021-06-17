@@ -9,6 +9,7 @@
 #define __ENEMY_H__
 
 #include"..\Actor.h"
+#include"..\..\Item\Poison.h"
 
 class Enemy:public Actor
 {

@@ -21,6 +21,38 @@ static void problemLoading(string filename)
 
 void SafeScene::update(float delta)
 {
+	//boss
+	if (!boss->GetisAlive()) {}
+	else
+	{
+		boss->AImonitor(knight);
+		//srand(time(NULL));
+		if (boss->CheckifDie())
+			boss->Die();
+		else if (boss->GetisInBattle() && rand() % 3 < 1)//attack!
+		//if it is a meleeenemy just change the code related to attack 
+		{
+			srand(time(0));
+			switch (rand() % 3)
+			{
+			case 0:
+				if (boss->AttackMelee().intersectsRect(knight->getBoundingBox()))
+				{
+					knight->deductHP(boss->GetWeapon()->Getdamage());
+				}
+				break;
+			case 1:
+				boss->Teleport(knight);
+				break;
+			case 2:
+				auto poison = Poison::createAndBindwithKnight(boss, knight);
+				addChild(poison, 3);
+				break;
+			}
+
+		}
+	}
+
 	//knight
 	knight->MoveinSafeScene();
 
@@ -34,6 +66,10 @@ void SafeScene::update(float delta)
 		else if (attackmelee.intersectsRect(meleeenemy->getBoundingBox()))
 		{
 			meleeenemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
+		}
+		else if (attackmelee.intersectsRect(boss->getBoundingBox()))
+		{
+			boss->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
 		}
 
 		knight->isMeleeing = false;
@@ -76,7 +112,7 @@ void SafeScene::update(float delta)
 		//if it is a meleeenemy just change the code related to attack 
 		{
 			auto bullet = Bullet::create();
-			addChild(bullet, 3);
+			addChild(bullet, 5);
 			enemy->AttackwithGun(bullet);
 		}
 	}
@@ -102,9 +138,7 @@ void SafeScene::update(float delta)
 	if (knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
 		if (getChildByName("enter_game_reminder")==nullptr)
-		{
 			addChild(FloatText::create("Click J to start game", Vec2(visiblesize.width / 2, visiblesize.height - 60), 3),3,"enter_game_reminder");
-		}
 		if (knight->isGoingBattle)
 		{
 			auto battlescene = BattleScene::create();
@@ -112,17 +146,23 @@ void SafeScene::update(float delta)
 		}
 	}
 
-	if (knight->getBoundingBox().intersectsRect(spear->getBoundingBox()) && !knight->CheckifHavingWeapon(spear))
+	if (knight->getBoundingBox().intersectsRect(spear->getBoundingBox()))
 	{
+		if (getChildByName("pick_up_weapon_reminder1") == nullptr)
+			addChild(FloatText::create("Click J to pick it up", Vec2(spear->getPositionX(), spear->getPositionY() + 20), 3), 3, "pick_up_weapon_reminder1");
 		if (knight->PickupWeapon(spear))
-		{
-			auto temp = knight->weapon[knight->Holding];
-			knight->weapon[knight->Holding] = spear;
-			spear = temp;
-		}
+			swap(knight->weapon[knight->Holding], spear);
 	}
 
-	if (box->isboxwithknight(knight))
+	if (knight->getBoundingBox().intersectsRect(submachinegun->getBoundingBox()))
+	{
+		if (getChildByName("pick_up_weapon_reminder2") == nullptr)
+			addChild(FloatText::create("Click J to pick it up", Vec2(submachinegun->getPositionX(), submachinegun->getPositionY() + 20), 3), 3, "pick_up_weapon_reminder2");
+		if (knight->PickupWeapon(submachinegun))
+			swap(knight->weapon[knight->Holding], submachinegun);
+	}
+
+	/*if (box->isboxwithknight(knight))
 	{
 		if (box->isopened == false && knight->j_press == true)
 		{
@@ -144,7 +184,7 @@ void SafeScene::update(float delta)
 			knight->SetMP(min(knight->GetMP() + 100, knight->GetMaxMP()));
 			box->props[1]->setVisible(false);
 		}
-	}
+	}*/
 }
 
 bool SafeScene::init()
@@ -174,32 +214,45 @@ bool SafeScene::init()
 	//knight
 	knight = Knight::create();
 
-	this->addChild(knight, 1);
-	this->addChild(knight->weapon[0], 1);
-	this->addChild(knight->weapon[1], 1);
+	this->addChild(knight, 4);
+	this->addChild(knight->weapon[0], 4);
+	this->addChild(knight->weapon[1], 4);
 
 	//enemy
 	srand(time(0));
 	enemy = GunEnemy::create(SceneType[rand() % SceneType.size()]);
 	meleeenemy = MeleeEnemy::create(SceneType[rand() % SceneType.size()]);
 
-	this->addChild(enemy, 2);
-	this->addChild(enemy->GetWeapon(), 2);
+	this->addChild(enemy, 4);
+	this->addChild(enemy->GetWeapon(), 4);
 
-	this->addChild(meleeenemy, 2);
-	this->addChild(meleeenemy->GetWeapon(), 2);
+	this->addChild(meleeenemy, 4);
+	this->addChild(meleeenemy->GetWeapon(), 4);
 
-	//box
-	box = Box::create();
-	box->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
-	this->addChild(box, 3);
-	this->addChild(box->props[box->proptype], 4);
-	box->props[box->proptype]->setVisible(false);
+	////box
+	//box = Box::create();
+	//box->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
+	//this->addChild(box, 3);
+	//this->addChild(box->props[box->proptype], 4);
+	//box->props[box->proptype]->setVisible(false);
 
 	//pick up weapon test
 	spear = Spear::create();
 	spear->setPosition(Vec2(visibleSize.width / 3, visibleSize.height / 3));
-	addChild(spear, 1);
+	addChild(spear, 4);
+
+	submachinegun = SubmachineGun::create();
+	submachinegun->setPosition(Vec2(visibleSize.width * 2 / 3, visibleSize.height / 3));
+	addChild(submachinegun, 4);
+
+	//boss
+	boss = Boss::create();
+	boss->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+	addChild(boss, 4);
+	addChild(boss->GetWeapon(), 4);
+
+	//auto poison = Poison::createAndBindwithKnight(enemy, knight);
+	//addChild(poison,3);
 
 	this->scheduleUpdate();
 

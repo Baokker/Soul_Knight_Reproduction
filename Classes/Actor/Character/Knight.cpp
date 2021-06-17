@@ -268,15 +268,20 @@ void Knight::deductHP(int damage)
 
 void Knight::resumeShield()
 {
-	curTime++;
-
-	if (Shield == MaxShield)
-		return;
-	if (curTime - preAttackedTime >= 180 &&
-		(curTime - preAttackedTime) % 55 == 0)
+	auto resumeshield = [this](float)
 	{
-		Shield++;
-	}
+		curTime++;
+
+		if (Shield == MaxShield)
+			return;
+		if (curTime - preAttackedTime >= 180 &&
+			(curTime - preAttackedTime) % 55 == 0)
+		{
+			Shield++;
+		}
+	};
+
+	schedule(resumeshield, FPS, "resumeshield");
 }
 
 void Knight::SetHP(int num)
@@ -376,6 +381,9 @@ bool Knight::CheckifHavingWeapon(Weapon* target)
 
 bool Knight::PickupWeapon(Weapon* pickedweapon)//函数调用不能改变实参指针变量的值，但可以改变实参指针变量所指向变量的值。
 {
+	if (CheckifHavingWeapon(pickedweapon))
+		return false;
+
 	if (isPickingupWeapon == false)
 		return false;
 
@@ -419,6 +427,9 @@ bool Knight::init()
 
 	//animate
 	SetAnimate();
+
+	//shield auto
+	resumeShield();
 
 	return true;
 }

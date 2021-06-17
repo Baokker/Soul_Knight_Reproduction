@@ -23,16 +23,17 @@ bool Gun::init()
 
 	SetType(isGun);
 	Setdamage(2);
-
+	SetBulletPath("Bullet\\Bullet1.png");
 	return true;
 }
 
 void Gun::Shoot(Bullet* bullet)
 {
+	bullet->initWithFile(BulletPath);
 	bullet->setPosition(getPosition());
 	bullet->setVisible(true);
-	bullet->damage = Getdamage();
-	bullet->MoveSpeed = GetBulletspeed();
+	bullet->Setdamage(Getdamage());
+	bullet->SetMoveSpeed(GetBulletspeed());
 }
 
 int Gun::GetBulletspeed() { return Bulletspeed; }
@@ -46,6 +47,16 @@ void Gun::SetBulletspeed(int num) { Bulletspeed = num; }
 int Gun::GetMeleeDamage() { return MeleeDamage; }
 
 void Gun::SetMeleeDamage(int num) { MeleeDamage = num; }
+
+string Gun::GetBulletPath()
+{
+	return BulletPath;
+}
+
+void Gun::SetBulletPath(string path)
+{
+	BulletPath = path;
+}
 
 Rect Gun::Attack()
 {
@@ -147,3 +158,16 @@ bool Spear::init()
 	initAnimate();
 	Setdamage(8);
 }
+
+bool SubmachineGun::init()
+{
+	if (!Gun::init())
+		return false;
+
+	Setdamage(3);
+	SetBulletspeed(12);
+	SetBulletPath("Bullet\\SubmachineGunBullet.png");
+
+	return true;
+}
+

@@ -23,9 +23,8 @@ bool FloatText::init(Vec2 position,float time)
     return true;
 }
 
-FloatText* FloatText::create(const char* text, Vec2 position, float duration)
+FloatText* FloatText::create(const char* text, Vec2 position, float duration, int fontsize)//don't need to set default number
 {
-    int fontsize = 20;
     auto ret = new (std::nothrow) FloatText();
 
     if (ret && ret->initWithTTF(text, "fonts\\Facon.ttf", fontsize) && ret->init(position, duration))

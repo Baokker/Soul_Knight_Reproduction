@@ -14,6 +14,7 @@
 #include<vector>
 
 USING_NS_CC;
+using std::string;
 
 class Weapon :public Sprite
 {
@@ -65,13 +66,18 @@ public:
 	void SetBulletspeed(int num);
 	int GetMeleeDamage();
 	void SetMeleeDamage(int num);
+
+	string GetBulletPath();
+	void SetBulletPath(string path);
+
 	Rect Attack();//the gun should also have melee function but with lower damages
 private:
+	string BulletPath = "Bullet\\Bullet1.png";
 	int Bulletspeed = 10;
 	int MeleeDamage = 4;
 };
 
-class FireGun:public Gun
+class SubmachineGun :public Gun
 {
 	friend class Actor;
 
@@ -83,13 +89,13 @@ class FireGun:public Gun
 
 	friend class SafeScene;
 	friend class BattleScene;
+
 public:
 	bool init();
 	void Shoot(Bullet* bullet);
-	CREATE_FUNC_WITH_FILE(FireGun);//for creating specific weapon
-	//CREATE_FUNC_WITH_DEFAULT_FILE(Weapon, "Weapon\\Pistol.png");//for knight
+	CREATE_FUNC_WITH_FILE(SubmachineGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(SubmachineGun, "Weapon\\SubmachineGun.png");
 
-private:
 };
 
 class Melee :public Weapon
