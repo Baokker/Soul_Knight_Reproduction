@@ -18,9 +18,12 @@
 #include"cocos2d.h"
 #include "ui/CocosGUI.h"
 #include"AudioEngine.h"
-#include"..\Actor\Character\Knight.h"
-#include"..\Actor\Enemy\Enemy.h"
+#include"Actor\Character\Knight.h"
+#include"Actor\Enemy\Enemy.h"
 #include"BattleScene.h"
+#include"..\FloatText\FloatText.h"
+#include"SetScene.h"
+#include"Box/Box.h"
 
 #include<vector>
 #include<string>
@@ -39,8 +42,13 @@ public:
 	virtual bool init();
 		
 	void menuCloseCallback(Ref* pSender);
+	void menuCloseCallbackSet(Ref* pSender);
 
-	bool SafeScene::onContactBegin(cocos2d::PhysicsContact& contact);
+	void SetLoadingBar();
+
+	void UpdateLoadingBar();
+
+	void SetMenu();
 
 	CREATE_FUNC(SafeScene);//automatically call the create(),init(),and autorelease()
 
@@ -48,11 +56,17 @@ public:
 private:
 	Knight* knight = nullptr;
 	GunEnemy* enemy = nullptr;
-	Vector<Bullet*> vecBullet;
-	Vector<Enemy*> vecEnemy;
-	//Vector<GunEnemy*> vecGunEnemy;
-	//Vector<MeleeEnemy*> vecMeleeEnemy;
-	// 
+	MeleeEnemy* meleeenemy = nullptr;
+
+	Box* box = nullptr;
+		
+	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
+	ui::LoadingBar* ArmorLoadingBar = ui::LoadingBar::create();
+	ui::LoadingBar* MPLoadingBar = ui::LoadingBar::create();
+
+	Label* HPLabel;
+	Label* armorLabel;
+	Label* MPLabel;
 	//useless now
 	//int SelectedBulletNum = 0;
 	//int MaxBulletNum = 200;

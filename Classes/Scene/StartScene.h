@@ -19,25 +19,31 @@ a menu for setting for bgm
 */
 
 
-#ifndef __STARTSCENE_H__//save time
+#ifndef __STARTSCENE_H__
 #define __STARTSCENE_H__
 
 #include"cocos2d.h"
 #include"AudioEngine.h"
+#include "ui/CocosGUI.h"
+#include<iostream>
+#include<string>
+
+using namespace std;
 
 USING_NS_CC;
 
 //simulate these codes in HelloWorldScene.h
 class StartScene :public cocos2d::Scene
 {
+	friend class SetScene;
 public:
 	static Scene* CreateScene();
-
+	int audioID;
 	virtual bool init();
 	
 	void menuPressToStart(Ref* pSender);
 	void menuCloseCallback(Ref* pSender);
-	
+	void menuCloseCallbackSet(Ref* pSender);
 	CREATE_FUNC(StartScene);//automatically call the create(),init(),and autorelease()
 };
 

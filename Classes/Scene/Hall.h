@@ -2,8 +2,8 @@
 #define _HALL_H_
 
 #include "cocos2d.h"
-#include "..\Const.h"
-#include "..\Actor\Character\Knight.h"
+#include "Const.h"
+#include "Actor\Character\Knight.h"
 #include "MapRoom.h"
 
 USING_NS_CC;
@@ -14,7 +14,7 @@ class Hall : public MapRoom
 	friend class BattleScene;
 public:
 	bool init();
-	bool boundaryCheck(Knight* knight, int& ispeedX, int& ispeedY);
+	bool boundaryCheck(Knight* knight, float& ispeedX, float& ispeedY);
 private:
 protected:
 };
