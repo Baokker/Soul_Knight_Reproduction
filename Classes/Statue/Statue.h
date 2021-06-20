@@ -10,6 +10,7 @@
 #include<cocos2d.h>
 #include"..//Actor/Character/knight.h"
 #include"..//Const.h"
+#include"..\FloatText\FloatText.h"
 #include<cmath>
 #include<string>
 
@@ -27,7 +28,14 @@ public:
 
 private:
 	Knight* knight = nullptr;
+	FloatText* statueLab[3];
+	FloatText* statueLab_buy;
+
+	int money_spend[3] = { 20,15,25 };
+
 	bool isopened = false;
+	bool Lab_logo = false;
+	bool Lab_logo2 = true;
 	int bufftype;
 };
 

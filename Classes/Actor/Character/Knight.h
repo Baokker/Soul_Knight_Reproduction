@@ -18,6 +18,10 @@ class Knight : public Actor
 {
 	friend class SafeScene;
 	friend class BattleScene;
+	friend class Statue;
+	friend class Box;
+	friend class Store;
+
 	//the format should go like the following:
 	public://mostly unwritten
 		/*
@@ -28,8 +32,10 @@ class Knight : public Actor
 		bool init();
 
 		void setKnightKeyboardListener();
+
 		void initWeapon();
 		void AttackwithGun(Bullet *bullet);
+		Weapon* Getweapon();
 		void SwitchWeapon();
 		bool CheckifHavingWeapon(Weapon* target);
 		bool PickupWeapon(Weapon* pickedweapon);
@@ -39,6 +45,7 @@ class Knight : public Actor
 
 		bool CheckifDie();
 		bool CheckifMPenough();
+		bool CheckifCanAttack();
 		void SetChangeDirection();
 		void SetAnimate();
 
@@ -55,6 +62,7 @@ class Knight : public Actor
 		int GetMaxHP();
 		void SetMaxMP(int num);
 		int GetMaxMP();
+		void AddMP(int num);
 
 		void SetShield(int num);
 		int GetShield();
@@ -63,9 +71,13 @@ class Knight : public Actor
 
 		int GetMoney();
 		void SetMoney(int num);
+		void AddMoney(int num);
 
-		void DeductBlood(int num);
 		void MoveinSafeScene();
+
+		void SetisInConfusion(bool flag);
+		bool GetisinConfusion();
+
 		~Knight();
 
 		CREATE_FUNC_WITH_FILE(Knight);
@@ -96,6 +108,10 @@ class Knight : public Actor
 		bool isHavingTwoWeapon = true;
 		Animate* MoveAnimate = nullptr;
 
+		int present;
+		bool Soundeffect;
+
+		bool isInConfusion = false;
 		bool isGoingBattle = false;
 		time_t preAttackedTime = 0, curTime = 0;
 };

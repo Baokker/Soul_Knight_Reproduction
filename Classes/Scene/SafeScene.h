@@ -5,13 +5,6 @@
 * @modified name date
 */
 
-/*
-* some flaws:
-* no interaction with characters
-* lacking a menu for setting
-* (optional) better if can choose character or have some chat with these roles
-*/
-
 #ifndef __SAFESCENE_H__
 #define __SAFESCENE_H__
 
@@ -24,6 +17,7 @@
 #include"..\FloatText\FloatText.h"
 #include"SetScene.h"
 #include"Box/Box.h"
+#include"Actor/Enemy/Boss.h"
 
 #include<vector>
 #include<string>
@@ -34,6 +28,8 @@ using namespace std;
 
 class SafeScene :public cocos2d::Scene
 {
+	friend class BattleScene;
+
 public:
 	static Scene* CreateScene();
 
@@ -61,7 +57,9 @@ private:
 	Box* box = nullptr;
 	
 	Weapon* spear = nullptr;
+	Weapon* fishgun = nullptr;
 
+	Boss* boss = nullptr;
 	ui::LoadingBar* BloodLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* ArmorLoadingBar = ui::LoadingBar::create();
 	ui::LoadingBar* MPLoadingBar = ui::LoadingBar::create();
@@ -69,6 +67,10 @@ private:
 	Label* HPLabel;
 	Label* armorLabel;
 	Label* MPLabel;
+
+	int present;
+	int Soundeffect;
+
 	//useless now
 	//int SelectedBulletNum = 0;
 	//int MaxBulletNum = 200;

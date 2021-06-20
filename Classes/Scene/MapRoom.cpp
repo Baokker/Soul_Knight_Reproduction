@@ -11,9 +11,6 @@ bool MapRoom::init()
 
 void MapRoom::createFloor(int X, int Y, int layer)
 {
-	string sceneType;
-	//sceneType = BattleScene::getSceneType();
-	sceneType = "Forest";
 	int floorType;
 	floorType = rand()%3;
 	string dir;
@@ -32,9 +29,6 @@ void MapRoom::createFloor(int X, int Y, int layer)
 
 void MapRoom::createWall(int X, int Y, int layer, bool addShadow)
 {
-	string sceneType;
-	//sceneType = BattleScene::getSceneType();
-	sceneType = "Forest";
 	int wallType;
 	wallType = rand() % 2;
 	string dir;

@@ -10,7 +10,7 @@ bool Hall::init()
 	return true;
 }
 
-bool Hall::boundaryCheck(Knight* knight, int& ispeedX, int& ispeedY)
+bool Hall::boundaryCheck(Knight* knight, float& ispeedX, float& ispeedY)
 {
 	int knightX = knight->getPositionX();
 	int knightY = knight->getPositionY();

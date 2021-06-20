@@ -16,19 +16,34 @@ USING_NS_CC;
 
 class SetScene :public Scene
 {
+	friend class Explosion;
 	friend class StartScene;
+	friend class BattleScene;
+	friend class SafeScene;
+	friend class Knight;
+	friend class BattleRoom;
 public:
 	static Scene* CreateScene();
 	void menuCloseCallbackEnd(Ref* pSender);
 
 	virtual bool init();
 	CREATE_FUNC(SetScene);
+
 private:
 	//StartScene startscene;
-	float volume = 0.1;
+
 	Menu* menu_music_on;
 	Menu* menu_music_off;
+
+	Button* button1;
+	Button* button2;
+	Button* button3;
+	Button* button4;
+
 	static int present ;
+	static bool Soundeffect;
+	static bool buttonchange;
+
 	int audioID;
 	Slider* slider;
 };

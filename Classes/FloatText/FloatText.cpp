@@ -7,7 +7,6 @@
 
 #include "FloatText.h"
 #include"Actor/Character/Knight.h"
-#include<string>
 
 using namespace std;
 
@@ -19,13 +18,13 @@ bool FloatText::init(Vec2 position,float time)
         removeFromParentAndCleanup(true);
     };
 
+    setGlobalZOrder(10);
     scheduleOnce(disappear, time, "disappear");
     return true;
 }
 
-FloatText* FloatText::create(const char* text, Vec2 position, float duration)
+FloatText* FloatText::create(string text, Vec2 position, float duration, int fontsize)//don't need to set default number
 {
-    int fontsize = 20;
     auto ret = new (std::nothrow) FloatText();
 
     if (ret && ret->initWithTTF(text, "fonts\\Facon.ttf", fontsize) && ret->init(position, duration))

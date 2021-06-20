@@ -23,127 +23,45 @@ void SafeScene::update(float delta)
 {
 	//knight
 	knight->MoveinSafeScene();
-
-	if (knight->isMeleeing)
+	if (knight->Getweapon()->CheckifCanAttack())
 	{
-		auto attackmelee = knight->AttackMelee();
-		if (attackmelee.intersectsRect(enemy->getBoundingBox()))
+		if (knight->isMeleeing)
 		{
-			enemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
+			auto attackmelee = knight->AttackMelee();
 		}
-		else if (attackmelee.intersectsRect(meleeenemy->getBoundingBox()))
+		else if (knight->isShooting)
 		{
-			meleeenemy->SetHP(enemy->GetHP() - knight->weapon[knight->Holding]->Getdamage());
-		}
-
-		knight->isMeleeing = false;
-	}
-	else if (knight->isShooting)
-	{
-		if (knight->MP <= 0)
-		{
-			if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
+			if (knight->GetMP() <= 0)
 			{
-				enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+				if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
+					enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+			
+				if (knight->AttackMeleeWithGun().intersectsRect(meleeenemy->getBoundingBox()))
+					meleeenemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
 			}
-			if (knight->AttackMeleeWithGun().intersectsRect(meleeenemy->getBoundingBox()))
+			else
 			{
-				meleeenemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
+				auto bullet = Bullet::create();
+				addChild(bullet, 3);
+				knight->AttackwithGun(bullet);
 			}
 		}
-		else
-		{
-			auto bullet = Bullet::create();
-			addChild(bullet, 3);
-			knight->AttackwithGun(bullet);
-
-		}
-		knight->isShooting = false;
 	}
 	
 	//bar
 	UpdateLoadingBar();
 
-	//enemy
-	if (!enemy->GetisAlive()) {}
-	else
-	{
-		enemy->AImonitor(knight);
-		//srand(time(NULL));
-		if (enemy->CheckifDie())
-			enemy->Die();
-		else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
-		//if it is a meleeenemy just change the code related to attack 
-		{
-			auto bullet = Bullet::create();
-			addChild(bullet, 3);
-			enemy->AttackwithGun(bullet);
-		}
-	}
-
-	//meleeenemy
-	if (!meleeenemy->GetisAlive()) {}
-	else
-	{
-		meleeenemy->AImonitor(knight);
-		//srand(time(NULL));
-		if (meleeenemy->CheckifDie())
-			meleeenemy->Die();
-		else if (meleeenemy->GetisInBattle() && rand() % 10 < 1)//attack!
-		//if it is a meleemeleeenemy just change the code related to attack 
-		{
-			auto meleerect = meleeenemy->AttackMelee();
-			if (meleerect.intersectsRect(knight->getBoundingBox()))
-				knight->DeductBlood(meleeenemy->GetWeapon()->Getdamage());
-		}
-	}
-
+	//transfer
 	auto visiblesize = Director::getInstance()->getVisibleSize();
+
 	if (knight->getPositionY() > visiblesize.height - 100 && knight->getPositionX() > visiblesize.width / 2 - 50 && knight->getPositionX() < visiblesize.width / 2 + 50)
 	{
 		if (getChildByName("enter_game_reminder")==nullptr)
-		{
 			addChild(FloatText::create("Click J to start game", Vec2(visiblesize.width / 2, visiblesize.height - 60), 3),3,"enter_game_reminder");
-		}
 		if (knight->isGoingBattle)
 		{
 			auto battlescene = BattleScene::create();
-			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene, Color3B(255, 255, 255)));
-		}
-	}
-
-
-	if (knight->getBoundingBox().intersectsRect(spear->getBoundingBox()) && !knight->CheckifHavingWeapon(spear))
-	{
-		if (knight->PickupWeapon(spear))
-		{
-			auto temp = knight->weapon[knight->Holding];
-			knight->weapon[knight->Holding] = spear;
-			spear = temp;
-		}
-	}
-
-	if (box->isboxwithknight(knight))
-	{
-		if (box->isopened == false && knight->j_press == true)
-		{
-			box->setVisible(false);
-			box->isopened = true;
-			box->props[box->proptype]->setVisible(true);
-			knight->j_press = false;
-		}
-	}
-	if (box->ispropswithknight(knight) && box->isopened == true && knight->j_press == true)
-	{
-		if (box->proptype == 0)
-		{
-			knight->SetHP(min(knight->GetHP() + 2, knight->GetMaxHP()));
-			box->props[0]->setVisible(false);
-		}
-		else if (box->proptype == 1)
-		{
-			knight->SetMP(min(knight->GetMP() + 100, knight->GetMaxMP()));
-			box->props[1]->setVisible(false);
+			Director::getInstance()->replaceScene(TransitionFade::create(0.5, battlescene , Color3B(255, 255, 255)));
 		}
 	}
 }
@@ -172,35 +90,25 @@ bool SafeScene::init()
 	//menu
 	SetMenu();
 
+	//reminder
+	auto labelwasd = Label::createWithTTF("wasd for moving", "fonts/Facon.ttf", 20);
+	labelwasd->setPosition(visibleSize.width / 2, 30);
+	addChild(labelwasd);
+
+	auto labelj = Label::createWithTTF("j for attack and operate", "fonts/Facon.ttf", 20);
+	labelj->setPosition(visibleSize.width / 2, 60);
+	addChild(labelj);
+
+	auto labelk = Label::createWithTTF("k for switch weapon", "fonts/Facon.ttf", 20);
+	labelk->setPosition(visibleSize.width / 2, 90);
+	addChild(labelk);
+
 	//knight
 	knight = Knight::create();
 
-	this->addChild(knight, 1);
-	this->addChild(knight->weapon[0], 1);
-	this->addChild(knight->weapon[1], 1);
-
-	//enemy
-	srand(time(0));
-	enemy = GunEnemy::create(SceneType[rand() % SceneType.size()]);
-	meleeenemy = MeleeEnemy::create(SceneType[rand() % SceneType.size()]);
-
-	this->addChild(enemy, 2);
-	this->addChild(enemy->GetWeapon(), 2);
-
-	this->addChild(meleeenemy, 2);
-	this->addChild(meleeenemy->GetWeapon(), 2);
-
-	//box
-	box = Box::create();
-	box->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
-	this->addChild(box, 3);
-	this->addChild(box->props[box->proptype], 4);
-	box->props[box->proptype]->setVisible(false);
-
-	//pick up weapon test
-	spear = Spear::create();
-	spear->setPosition(Vec2(visibleSize.width / 3, visibleSize.height / 3));
-	addChild(spear, 1);
+	this->addChild(knight, 4);
+	this->addChild(knight->weapon[0], 4);
+	this->addChild(knight->weapon[1], 4);
 
 	this->scheduleUpdate();
 
@@ -285,5 +193,12 @@ SafeScene::~SafeScene()
 void SafeScene::menuCloseCallbackSet(Ref* pSender)
 {
 	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiobutton = AudioEngine::play2d("music\\button.mp3", false);
+		AudioEngine::setVolume(audiobutton, present / 100.0f);
+	}
 	Director::getInstance()->pushScene(TransitionFade::create(0.5, setscene, Color3B(255, 255, 255)));
 }

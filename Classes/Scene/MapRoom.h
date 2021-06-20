@@ -24,11 +24,14 @@ public:
 	Knight* getKnight();
 
 protected:
+	string sceneType = "Forest";
 	int upLeftX, upLeftY, downRightX, downRightY;
 	int dir;
 	Knight* knight = nullptr;
 	int Height, Width;  // cnt of sprites in Height and Width
 	Vector<Sprite*> vecWall;
+
+	bool dooropen = false;
 };
 
 #endif  // _MAP_H_

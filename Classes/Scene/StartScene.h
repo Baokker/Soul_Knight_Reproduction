@@ -39,6 +39,8 @@ class StartScene :public cocos2d::Scene
 public:
 	static Scene* CreateScene();
 	int audioID;
+	int present;
+	int Soundeffect;
 	virtual bool init();
 	
 	void menuPressToStart(Ref* pSender);

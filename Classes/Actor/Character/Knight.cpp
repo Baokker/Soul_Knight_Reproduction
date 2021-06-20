@@ -32,7 +32,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_W:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 			{
-				SetMoveSpeedY(GetMoveSpeed());
+				SetMoveSpeedY((GetisinConfusion() ? -1 : 1) * GetMoveSpeed());
 				if (!isMoving)
 				{
 					runAction(MoveAnimate);
@@ -43,7 +43,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_A:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 			{
-				SetMoveSpeedX(-GetMoveSpeed());
+				SetMoveSpeedX((GetisinConfusion() ? -1 : 1) * -GetMoveSpeed());
 				if (!isMoving)
 				{
 					runAction(MoveAnimate);
@@ -54,7 +54,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_S:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 			{
-				SetMoveSpeedY(-GetMoveSpeed());
+				SetMoveSpeedY((GetisinConfusion() ? -1 : 1) * -GetMoveSpeed());
 				if (!isMoving)
 				{
 					runAction(MoveAnimate);
@@ -65,7 +65,7 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_D:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 			{
-				SetMoveSpeedX(GetMoveSpeed());
+				SetMoveSpeedX((GetisinConfusion() ? -1 : 1) * GetMoveSpeed());
 				if (!isMoving)
 				{
 					runAction(MoveAnimate);
@@ -78,11 +78,9 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{	
 				j_press = true;
-				if (weapon[Holding]->Type == isGun)
-					isShooting = true;
-				else if (weapon[Holding]->Type == isMelee)
-					isMeleeing = true;
-				isGoingBattle = true;
+				isShooting = false;
+				isMeleeing = false;
+				isGoingBattle = false;
 				break;
 			}
 			//switch weapon
@@ -133,10 +131,30 @@ void Knight::setKnightKeyboardListener()
 			case EventKeyboard::KeyCode::KEY_J:
 			case EventKeyboard::KeyCode::KEY_CAPITAL_J:
 			{
+				if (weapon[Holding]->Type == isGun && Getweapon()->CheckifCanAttack())
+					isShooting = true;
+				else
+					isShooting = false;
+
+				if (weapon[Holding]->Type == isMelee && Getweapon()->CheckifCanAttack())
+					isMeleeing = true;
+				else
+					isMeleeing = false;
+
+				isGoingBattle = true;
 				isPickingupWeapon = true;
 				j_press = false;
-				isGoingBattle = false;
-				isShooting = false;
+
+				auto Reset = [this](float)
+				{
+					isShooting = false;
+					isMeleeing = false;
+					isGoingBattle = false;
+					//isPickingupWeapon = false;
+					//never want to find its bug !!!!
+				};
+
+				scheduleOnce(Reset, 5 * FPS, "reset");
 				break;
 			}
 		}
@@ -154,15 +172,52 @@ void Knight::setKnightKeyboardListener()
 void Knight::AttackwithGun(Bullet *bullet)
 {
 	dynamic_cast<Gun*>(weapon[Holding])->Shoot(bullet);
+
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiogun = AudioEngine::play2d("music\\bullet.mp3", false);
+		AudioEngine::setVolume(audiogun, present / 100.0f);
+	}
+
+	isShooting = false;
+}
+
+Weapon* Knight::Getweapon()
+{
+	return weapon[Holding];
 }
 
 Rect Knight::AttackMelee()
 {
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiomelee = AudioEngine::play2d("music\\saber.mp3", false);
+		AudioEngine::setVolume(audiomelee, present / 100.0f);
+	}
+
+
+	isMeleeing = false;
 	return dynamic_cast<Melee*>(weapon[Holding])->Attack();
 }
 
 Rect Knight::AttackMeleeWithGun()
 {
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiomelee = AudioEngine::play2d("music\\saber.mp3", false);
+		AudioEngine::setVolume(audiomelee, present / 100.0f);
+	}
+
+	isShooting = false;
 	return dynamic_cast<Gun*>(weapon[Holding])->Attack();
 }
 
@@ -170,7 +225,12 @@ bool Knight::CheckifDie(){return HP <= 0;}
 
 bool Knight::CheckifMPenough()
 {
-	return MP >= 0;
+	return MP >= Getweapon()->GetconsumeMP();
+}
+
+bool Knight::CheckifCanAttack()
+{
+	return Getweapon()->CheckifCanAttack() && CheckifMPenough();
 }
 
 void Knight::SetChangeDirection()
@@ -251,6 +311,16 @@ void Knight::deductHP(int damage)
 {
 	preAttackedTime = curTime;
 	Shield -= damage;
+
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiodeductHP = AudioEngine::play2d("music\\deductHP.mp3", false);
+		AudioEngine::setVolume(audiodeductHP, present / 100.0f);
+	}
+
 	if (Shield < 0)
 	{
 		if (HP + Shield <= 0)
@@ -264,19 +334,26 @@ void Knight::deductHP(int damage)
 			Shield = 0;
 		}
 	}
+
+	addChild(FloatText::create(std::to_string(damage), Vec2(getContentSize().width / 2, getContentSize().height + 5), 0.2, 25));
 }
 
 void Knight::resumeShield()
 {
-	curTime++;
-
-	if (Shield == MaxShield)
-		return;
-	if (curTime - preAttackedTime >= 180 &&
-		(curTime - preAttackedTime) % 55 == 0)
+	auto resumeshield = [this](float)
 	{
-		Shield++;
-	}
+		curTime++;
+
+		if (Shield == MaxShield)
+			return;
+		if (curTime - preAttackedTime >= 180 &&
+			(curTime - preAttackedTime) % 55 == 0)
+		{
+			Shield++;
+		}
+	};
+
+	schedule(resumeshield, FPS, "resumeshield");
 }
 
 void Knight::SetHP(int num)
@@ -319,6 +396,11 @@ int Knight::GetMaxMP()
 	return MaxMP;
 }
 
+void Knight::AddMP(int num)
+{
+	MP = MP + num > MaxMP ? MaxMP : MP + num;
+}
+
 void Knight::SetShield(int num)
 {
 	Shield = num;
@@ -349,11 +431,25 @@ void Knight::SetMoney(int num)
 	Money = num;
 }
 
+void Knight::AddMoney(int num)
+{
+	Money += num;
+}
+
 
 void Knight::SwitchWeapon()//the scene should also update!
 {
 	if (isHavingOneWeapon)
 		return;
+
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audioswitchweapon = AudioEngine::play2d("music\\changeWeapon.mp3", false);
+		AudioEngine::setVolume(audioswitchweapon, present / 100.0f);
+	}
 
 	if (Holding == 0)
 	{
@@ -374,8 +470,11 @@ bool Knight::CheckifHavingWeapon(Weapon* target)
 	return weapon[0] == target || weapon[1] == target;
 }
 
-bool Knight::PickupWeapon(Weapon* pickedweapon)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½Ü¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸Ä±ï¿½Êµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½
+bool Knight::PickupWeapon(Weapon* pickedweapon)//º¯Êýµ÷ÓÃ²»ÄÜ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿µÄÖµ£¬µ«¿ÉÒÔ¸Ä±äÊµ²ÎÖ¸Õë±äÁ¿ËùÖ¸Ïò±äÁ¿µÄÖµ¡£
 {
+	if (CheckifHavingWeapon(pickedweapon))
+		return false;
+
 	if (isPickingupWeapon == false)
 		return false;
 
@@ -384,6 +483,8 @@ bool Knight::PickupWeapon(Weapon* pickedweapon)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½Ü¸Ä±ï
 	weapon[Holding]->setPosition(OriginalPosition);
 
 	isPickingupWeapon = false;
+	isShooting = false;
+	isMeleeing = false;
 
 	return true;
 }
@@ -420,21 +521,12 @@ bool Knight::init()
 	//animate
 	SetAnimate();
 
+	//shield auto
+	resumeShield();
+
 	return true;
 }
 
-void Knight::DeductBlood(int num)
-{
-	if (Shield > num)
-	{
-		Shield -= num;
-		return;
-	}
-	else
-	{
-		HP -= (num - Shield);
-	}
-}
 
 void Knight::MoveinSafeScene()
 {
@@ -444,9 +536,26 @@ void Knight::MoveinSafeScene()
 	then,in this update function which will be executed sixty times per second, the computer check the speed and setposition every frame.
 	almost every move goes like that
 	*/
-	setPosition(getPositionX() + GetMoveSpeedX(), getPositionY() + GetMoveSpeedY());
+	auto visiblesize = Director::getInstance()->getVisibleSize();
+	auto TargetX = getPositionX() + GetMoveSpeedX();
+	if (TargetX < 0 || TargetX>visiblesize.width)
+		TargetX = getPositionX();
+	auto TargetY = getPositionY() + GetMoveSpeedY();
+	if (TargetY < 0 || TargetY>visiblesize.height)
+		TargetY = getPositionY();
+	setPosition(TargetX, TargetY);
 
 	//WeaponFollow();
 	//it has been scheduled in the init()(the lambda function)
+}
+
+void Knight::SetisInConfusion(bool flag)
+{
+	isInConfusion = flag;
+}
+
+bool Knight::GetisinConfusion()
+{
+	return isInConfusion;
 }
 

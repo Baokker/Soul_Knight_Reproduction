@@ -76,6 +76,14 @@ bool StartScene::init()
 
 void StartScene::menuCloseCallback(Ref* pSender)
 {
+	auto setscene = SetScene::create();
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiobutton = AudioEngine::play2d("music\\button.mp3", false);
+		AudioEngine::setVolume(audiobutton, present / 100.0f);
+	}
 	Director::getInstance()->end();
 }
 
@@ -89,6 +97,12 @@ void StartScene::menuCloseCallbackSet(Ref* pSender)
 {
 	auto setscene = SetScene::create();
 	setscene->audioID = this->audioID;
-
+	this->present = setscene->present;
+	this->Soundeffect = setscene->Soundeffect;
+	if (Soundeffect)
+	{
+		auto audiobutton = AudioEngine::play2d("music\\button.mp3", false);
+		AudioEngine::setVolume(audiobutton, present / 100.0f);
+	}
 	Director::getInstance()->pushScene(TransitionFade::create(0.5, setscene, Color3B(255, 255, 255)));
 }

@@ -91,6 +91,27 @@ void BattleScene::SetMenu()
 	setSprite->setGlobalZOrder(10);
 }
 
+void BattleScene::SetMoneyLabel()
+{
+	MoneyLabel = Label::createWithTTF("gold : 0", "fonts/Facon.ttf", 30);
+	MoneyLabel->setPosition(870, 630);
+	this->addChild(MoneyLabel, 100);
+	MoneyLabel->setGlobalZOrder(10);
+}
+
+void BattleScene::SetCheckpoint()
+{
+	CheckpointLabel = Label::createWithTTF("Checkpoint  : 1 - 1", "fonts/Facon.ttf", 30);
+	CheckpointLabel->setPosition(870, 670);
+	this->addChild(CheckpointLabel, 100);
+	CheckpointLabel->setGlobalZOrder(10);
+}
+
+void BattleScene::UpdateMoneyLabel()
+{
+	MoneyLabel->setString("Money : " + Value(this->knight->GetMoney()).asString());
+}
+
 void BattleScene::UpdateLoadingBar()
 {
 	//Status update
@@ -100,12 +121,252 @@ void BattleScene::UpdateLoadingBar()
 
 	HPLabel->setString(Value(this->knight->HP).asString() + "/" + Value(this->knight->MaxHP).asString());
 	armorLabel->setString(Value(this->knight->Shield).asString() + "/" + Value(this->knight->MaxShield).asString());
-	MPLabel->setString(Value(this->knight->MP).asString() + "/" + Value(this->knight->MP).asString());
+	MPLabel->setString(Value(this->knight->MP).asString() + "/" + Value(this->knight->MaxMP).asString());
+}
+
+void BattleScene::updateAttack()
+{
+	if (knight->isMeleeing)
+	{
+		if (knight->CheckifMPenough())
+		{
+			knight->SetMP(knight->GetMP() - knight->Getweapon()->GetconsumeMP());
+			for (auto enemy : curRoom->vecEnemy)
+			{
+				if (knight->AttackMelee().intersectsRect(enemy->getBoundingBox()))
+				{
+					enemy->SetHP(enemy->GetHP() - dynamic_cast<Melee*>(knight->weapon[knight->Holding])->Getdamage());
+				}
+				knight->isMeleeing = false;
+			}
+		}
+	}
+	else if (knight->isShooting)
+	{
+		if (knight->CheckifMPenough())
+		{
+			auto bullet = Bullet::create();
+			addChild(bullet);
+			knight->SetMP(knight->GetMP() - knight->Getweapon()->GetconsumeMP());
+			int minDis = WALLWIDTH * SIZEROOM;
+			for (auto enemy : curRoom->vecEnemy)
+			{
+				int distance = sqrt(pow(knight->weapon[0]->getPosition().x - enemy->getPosition().x, 2) + pow(knight->weapon[0]->getPosition().y - enemy->getPosition().y, 2));
+				if (distance < minDis)
+				{
+					minDis = distance;
+					int mx = enemy->getPosition().x - knight->weapon[0]->getPosition().x;
+					int my = enemy->getPosition().y - knight->weapon[0]->getPosition().y;
+					bullet->MoveSpeedX = bullet->MoveSpeed * mx / distance;
+					bullet->MoveSpeedY = bullet->MoveSpeed * my / distance;
+					bullet->setRotation(-atan2(my, mx) * 180 / 3.14);
+				}
+			}
+			vecBullet.pushBack(bullet);
+			bullet->setGlobalZOrder(6);
+			bullet->setOwner(KNIGHT);
+			knight->AttackwithGun(bullet);
+			knight->isShooting = false;
+		}
+		else
+		{
+			for (auto enemy : curRoom->vecEnemy)
+			{
+				if (knight->AttackMeleeWithGun().intersectsRect(enemy->getBoundingBox()))
+				{
+					enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->GetMeleeDamage());
+				}
+
+				knight->isMeleeing = false;
+			}
+		}
+	}
+
+	for (auto enemy : curRoom->vecEnemy)
+	{
+		//AI
+		if (!enemy->GetisAlive()) {}
+		else
+		{
+			enemy->AImonitor(knight);
+			if (enemy->CheckifDie())
+			{
+				knight->AddMoney(2);
+				knight->AddMP(5);
+				if (rand() % 3 == 0)
+				{
+					switch (rand() % 4)
+					{
+						case 0:
+							enemy->MakeExplosion(knight);
+							break;
+						case 1:
+							enemy->MakePoison(knight);
+							break;
+						case 2:
+							enemy->MakeConfusion(knight);
+						case 3:
+							enemy->MakeSlowdown(knight);
+						default:
+							break;
+					}
+				}
+				enemy->Die();
+			}
+
+			else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
+			//if it is a meleeenemy just change the code related to attack 
+			{
+				if (enemy->GetType() == GUN)
+				{
+					auto EnemyBullet = Bullet::create();
+					this->addChild(EnemyBullet);
+					int distance = sqrt(pow(knight->getPosition().x - enemy->getPosition().x, 2) + pow(knight->getPosition().y - enemy->getPosition().y, 2));
+					int mx = knight->getPosition().x - enemy->getPosition().x; 
+					int my = knight->getPosition().y - enemy->getPosition().y;
+					EnemyBullet->MoveSpeedX = EnemyBullet->MoveSpeed * mx / distance;
+					EnemyBullet->MoveSpeedY = EnemyBullet->MoveSpeed * my / distance;
+					EnemyBullet->setOwner(ENEMY);
+
+					EnemyBullet->setRotation(-atan2(my, mx)*180/3.14);
+
+					vecBullet.pushBack(EnemyBullet);
+					EnemyBullet->setGlobalZOrder(6);
+					enemy->AttackwithGun(EnemyBullet);
+				}
+				else if (enemy->GetType() == MELEE)
+				{
+					auto meleerect = enemy->AttackMelee();
+					if (meleerect.intersectsRect(knight->getBoundingBox()))
+						knight->deductHP(enemy->GetWeapon()->Getdamage());
+				}
+			}
+		}
+	}
+
+	if (curRoom->boss != nullptr)
+	{
+		if (!curRoom->boss->GetisAlive()) {}
+		else
+		{
+			curRoom->boss->AImonitor(knight);
+			if (curRoom->boss->CheckifDie())
+			{
+				knight->AddMoney(25);
+				curRoom->boss->Die();
+			}
+			else if (curRoom->boss->GetisInBattle())//attack!
+			{
+				switch (rand() % 7)
+				{
+					case 0:
+						if (curRoom->boss->AttackMelee().intersectsRect(knight->getBoundingBox()))//problem
+						{
+							knight->deductHP(curRoom->boss->GetWeapon()->Getdamage());
+						}
+						break;
+					case 1:
+						curRoom->boss->Teleport(knight);
+						break;
+					case 2:
+						curRoom->boss->MakeConfusion(knight);
+						curRoom->boss->GetWeapon()->SetCurtime(1);
+						break;
+					case 3:
+						curRoom->boss->MakeExplosion(knight);
+						curRoom->boss->GetWeapon()->SetCurtime(1);
+						break;
+					case 4:
+						curRoom->boss->MakePoison(knight);
+						curRoom->boss->GetWeapon()->SetCurtime(1);
+						break;
+					case 5:
+						for (int i = 0; i < 5; i++)
+						{
+							auto EnemyBullet = Bullet::create();
+							this->addChild(EnemyBullet);
+							int distance = sqrt(pow(knight->getPosition().x - curRoom->boss->getPosition().x, 2) + pow(knight->getPosition().y - curRoom->boss->getPosition().y, 2));
+							int mx = knight->getPosition().x - curRoom->boss->getPosition().x;
+							int my = knight->getPosition().y - curRoom->boss->getPosition().y;
+							EnemyBullet->MoveSpeedX = EnemyBullet->MoveSpeed * mx / distance;
+							EnemyBullet->SetMoveSpeedX(EnemyBullet->GetMoveSpeedX() + rand() % 5 - 2);
+							EnemyBullet->MoveSpeedY = EnemyBullet->MoveSpeed * my / distance;
+							EnemyBullet->SetMoveSpeedY(EnemyBullet->GetMoveSpeedY() + rand() % 5 - 2);
+
+							EnemyBullet->setOwner(ENEMY);
+
+							EnemyBullet->setRotation(-atan2(EnemyBullet->GetMoveSpeedY(), EnemyBullet->GetMoveSpeedX()) * 180 / 3.14);
+
+							vecBullet.pushBack(EnemyBullet);
+							EnemyBullet->setGlobalZOrder(6);
+							curRoom->boss->AttackwithGun(EnemyBullet);
+
+						}
+						break;
+					case 6:
+						curRoom->boss->MakeSlowdown(knight);
+						break;
+				}
+
+			}
+		}
+	}
+}
+
+void BattleScene::updateBullet(Bullet* bullet, Enemy* enemy)
+{
+	if (bullet->getBoundingBox().intersectsRect(enemy->getBoundingBox()) && !bullet->GetisUseless() && bullet->getOwner() == KNIGHT)
+	{
+		enemy->SetHP(enemy->GetHP() - bullet->Getdamage());
+		bullet->setVisible(false);
+		bullet->stopAllActions();
+		bullet->MoveSpeedX = bullet->MoveSpeedY = 0;
+		bullet->removeFromParentAndCleanup(true);
+		bullet->SetisUseless(true);
+	}
+	if (bullet->getBoundingBox().intersectsRect(knight->getBoundingBox()) && !bullet->GetisUseless() && bullet->getOwner() == ENEMY)
+	{
+		knight->deductHP(bullet->Getdamage());
+		bullet->setVisible(false);
+		bullet->stopAllActions();
+		bullet->MoveSpeedX = bullet->MoveSpeedY = 0;
+		bullet->removeFromParentAndCleanup(true);
+		bullet->SetisUseless(true);
+	}
+}
+
+void BattleScene::Updatecheckpoint()
+{
+	CheckpointLabel->setString("Checkpoint: " + Value(level / 5 + 1).asString() + " - " + Value(level % 5 + 1).asString());
+}
+
+string BattleScene::getSceneType()
+{
+	return sceneType;
+}
+
+BattleScene* BattleScene::createwithOriginalKnightAndLevel(Knight* originalknight, int prelevel)
+{
+	BattleScene* pRet = new(std::nothrow) BattleScene();
+		if (pRet && pRet->initwithOriginalKnightAndLevel(originalknight,prelevel)) 
+		{ 
+			pRet->autorelease(); 
+			return pRet; 
+		} 
+		else 
+		{
+			delete pRet; 
+			pRet = nullptr; 
+			return nullptr; 
+		} 
 }
 
 bool BattleScene::init() 
 {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
+
+	srand(time(NULL));
+	sceneType = SceneType.at(rand() % SceneType.size());
 
 	this->knight = Knight::create();
 
@@ -122,8 +383,10 @@ bool BattleScene::init()
 	initRoom();
 	connectRoom(beginRoom);
 
+	SetMoneyLabel();
 	SetLoadingBar();
 	SetMenu();
+	SetCheckpoint();
 
 	this->scheduleUpdate();
 	return true;
@@ -134,140 +397,156 @@ void BattleScene::update(float delta)
 	//check if die
 	if (knight->CheckifDie())
 	{
-		auto safescene = SafeScene::CreateScene();
+		auto safescene = SafeScene::create();
+		safescene->knight->SetMoney(0);
 		Director::getInstance()->replaceScene(TransitionFade::create(0.5, safescene, Color3B(255, 255, 255)));
 	}
-
 	updateAll();
+	updateAttack();
+
+	if (curRoom->box != nullptr)
+	{
+		curRoom->box->isboxwithknight(knight);
+		curRoom->box->ispropswithknight(knight);
+	}
+	if (curRoom->store != nullptr)
+	{
+		curRoom->store->checkstore(510, 790, knight);
+		curRoom->store->isstorewithknight(knight);
+		curRoom->store->isgoodswithknight(knight);
+	}
+	if (curRoom->statue !=nullptr)
+		curRoom->statue->isstatuewithknight(knight);
+
+	Updatecheckpoint();
+	UpdateMoneyLabel();
 	UpdateLoadingBar();
 }
 
-void BattleScene::updateAll() 
+bool BattleScene::initwithOriginalKnightAndLevel(Knight* originalknight,int prelevel)
 {
-	int ispeedX = knight->MoveSpeedX;
-	int ispeedY = knight->MoveSpeedY;
+	Size visibleSize = Director::getInstance()->getVisibleSize();
 
-	for (int y = 0; y < SIZEMTX; y++) 
+	srand(time(NULL));
+	sceneType = SceneType.at(rand() % SceneType.size());
+
+	originalknight->retain();
+	originalknight->weapon[0]->retain();
+	originalknight->weapon[1]->retain();
+
+	originalknight->removeFromParent();
+	originalknight->weapon[0]->removeFromParent();
+	originalknight->weapon[1]->removeFromParent();
+
+	knight = originalknight;
+	
+	knight->resumeShield();
+	knight->SetChangeDirection();
+	knight->weapon[0]->initCheckCD();
+	knight->weapon[1]->initCheckCD();
+
+	this->level = prelevel + 1;
+
+	this->addChild(knight);
+	this->addChild(knight->weapon[0]);
+	this->addChild(knight->weapon[1]);
+
+	knight->MoveSpeedX = knight->MoveSpeedY = 0;
+	knight->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+	knight->setGlobalZOrder(6);
+	knight->weapon[0]->setGlobalZOrder(6);
+	knight->weapon[1]->setGlobalZOrder(6);
+
+	initRoom();
+	connectRoom(beginRoom);
+
+	SetMoneyLabel();
+	SetLoadingBar();
+	SetMenu();
+	SetCheckpoint();
+
+	this->scheduleUpdate();
+	return true;
+
+}
+
+void BattleScene::updateAll()
+{
+	float ispeedX = knight->MoveSpeedX;
+	float ispeedY = knight->MoveSpeedY;
+	for (int y = 0; y < SIZEMTX; y++)
 	{
-		for (int x = 0; x < SIZEMTX; x++) 
+		for (int x = 0; x < SIZEMTX; x++)
 		{
 			if (battleRoom[x][y] == nullptr) continue;
-			BattleRoom* curRoom = battleRoom[x][y];
-			bool inRoom = curRoom->boundaryCheck(knight, ispeedX, ispeedY);
-			for (auto bullet : vecBullet)
+			if (battleRoom[x][y]->boundaryCheck(knight, ispeedX, ispeedY))
+				curRoom = battleRoom[x][y];
+			if (curRoom != nullptr && !curRoom->visited)
 			{
-				for (auto enemy : curRoom->vecEnemy)
+				curRoom->visited = true;
+				if (curRoom->roomType == NORMAL)
 				{
-					if (bullet->getBoundingBox().intersectsRect(enemy->getBoundingBox()))
-					{
-						enemy->SetHP(enemy->GetHP() - dynamic_cast<Gun*>(knight->weapon[knight->Holding])->Getdamage());
-						bullet->setVisible(false);
-						bullet->stopAllActions();
-						bullet->MoveSpeedX = bullet->MoveSpeedY = 0;
-						bullet->removeFromParentAndCleanup(true);
-
-						curRoom->openDoor();
-					}
-
-					//AI
-					if (!enemy->GetisAlive()) {}
-					else
-					{
-						enemy->AImonitor(knight);
-						//srand(time(NULL));
-						if (enemy->CheckifDie())
-							enemy->Die();
-						else if (enemy->GetisInBattle() && rand() % 10 < 1)//attack!
-						//if it is a meleeenemy just change the code related to attack 
-						{
-							if (enemy->GetType() == GUN)
-							{
-								enemy->AttackwithGun(bullet);
-							}
-							else if (enemy->GetType() == MELEE)
-							{
-								auto meleerect = enemy->AttackMelee();
-								if (meleerect.intersectsRect(knight->getBoundingBox()))
-									knight->DeductBlood(enemy->GetWeapon()->Getdamage());
-							}
-						}
-					}
-				}
-				for (auto wall : curRoom->vecWall)
-				{
-					if (bullet->getBoundingBox().intersectsRect(wall->getBoundingBox()))
-					{
-						bullet->setVisible(false);
-						bullet->stopAllActions();
-						bullet->MoveSpeedX = bullet->MoveSpeedY = 0;
-						bullet->removeFromParentAndCleanup(true);
-					}
-				}
-			}
-			if (inRoom)
-			{
-				if (!curRoom->visited)
-				{
-					curRoom->visited = true;
 					curRoom->closeDoor();
-					for (int i = 0; i < 5; i++)
-					{
-						GunEnemy* enemy;
-						enemy = GunEnemy::create();
-						curRoom->vecEnemy.pushBack(enemy);
-						curRoom->addChild(enemy);
-						enemy->setGlobalZOrder(6);
-						curRoom->addChild(enemy->GetWeapon());
-						enemy->GetWeapon()->setGlobalZOrder(6);
-					}
+					curRoom->addEnemy();
 				}
-				for (int dir = 0; dir < CNTDIR; dir++)
+				else if (curRoom->roomType == BOSS)
 				{
-					if (curRoom->visDir[dir] == false) continue;
-					BattleRoom* nextRoom = battleRoom[x + DIRX[dir]][y + DIRY[dir]];
-				}
-				//check
-				if (knight->isMeleeing)
-				{
-					knight->AttackMelee();
-					knight->isMeleeing = false;
-				}
-				else if (knight->isShooting)
-				{
-					auto bullet = Bullet::create("Bullet/yellowbullet.png");
-					addChild(bullet);
-					int minDis = WALLWIDTH * SIZEROOM;
-					for (auto enemy : curRoom->vecEnemy)
-					{
-						int distance = sqrt(pow(knight->weapon[0]->getPosition().x - enemy->getPosition().x, 2) + pow(knight->weapon[0]->getPosition().y - enemy->getPosition().y, 2));
-						if (distance < minDis)
-						{
-							minDis = distance;
-							int mx = enemy->getPosition().x - knight->weapon[0]->getPosition().x;
-							int my = enemy->getPosition().y - knight->weapon[0]->getPosition().y;
-							bullet->MoveSpeedX = bullet->MoveSpeed * mx / distance;
-							bullet->MoveSpeedY = bullet->MoveSpeed * my / distance;
-						}
-
-					}
-					vecBullet.pushBack(bullet);
-					bullet->setGlobalZOrder(6);
-					knight->AttackwithGun(bullet);
-					knight->isShooting = false;
+					curRoom->closeDoor();
 				}
 			}
-
-
+			if (curRoom != nullptr && curRoom->roomType == NORMAL)
+			{
+				if (curRoom->allKilled())
+					curRoom->openDoor();
+			}
+			if (curRoom != nullptr && curRoom->roomType == BOSS && curRoom->allKilled())
+			{
+				if (curRoom->endPortal == nullptr)
+				{
+					Sprite* portal = Sprite::create("Map//portal.png");
+					curRoom->endPortal = portal;
+					portal->setPosition(curRoom->centerX, curRoom->centerY);
+					curRoom->addChild(portal);
+					portal->setGlobalZOrder(5);
+				}
+			}
 		}
 	}
-	for (auto hall : vecHall) 
+	if (!vecBullet.empty())
+		for (auto bullet : vecBullet)
+		{
+			for (auto enemy : curRoom->vecEnemy)
+			{
+				if (vecBullet.empty())
+					continue;
+				updateBullet(bullet, enemy);
+
+			}
+			for (auto wall : curRoom->vecWall)
+			{
+				if (vecBullet.empty())
+					continue;
+				if (bullet->getBoundingBox().intersectsRect(wall->getBoundingBox()))
+				{
+					bullet->setVisible(false);
+					bullet->stopAllActions();
+					bullet->MoveSpeedX = bullet->MoveSpeedY = 0;
+					bullet->removeFromParentAndCleanup(true);
+					bullet->SetisUseless(true);
+				}
+			}
+			if (vecBullet.empty())
+				continue;
+		}
+
+	for (auto hall : vecHall)
 	{
 		bool inHall = hall->boundaryCheck(knight, ispeedX, ispeedY);
 	}
 
-	for (int y = 0; y < SIZEMTX; y++) 
+	for (int y = 0; y < SIZEMTX; y++)
 	{
-		for (int x = 0; x < SIZEMTX; x++) 
+		for (int x = 0; x < SIZEMTX; x++)
 		{
 			if (battleRoom[x][y] == nullptr) continue;
 			BattleRoom* curRoom = battleRoom[x][y];
@@ -276,12 +555,23 @@ void BattleScene::updateAll()
 		}
 	}
 	for (auto hall : vecHall)
-	{ 
+	{
 		hall->changePositionBy(-ispeedX, -ispeedY);
 	}
 	for (auto bullet : vecBullet)
 	{
-		bullet->setPosition(bullet->getPosition().x - ispeedX, bullet->getPosition().y - ispeedY);
+		if (!bullet->GetisUseless())
+			bullet->setPosition(bullet->getPosition().x - ispeedX, bullet->getPosition().y - ispeedY);
+	}
+	if (curRoom->roomType == END && knight->getBoundingBox().intersectsRect(curRoom->endPortal->getBoundingBox())
+		|| (curRoom->roomType == BOSS && curRoom->endPortal != nullptr) && knight->getBoundingBox().intersectsRect(curRoom->endPortal->getBoundingBox()))
+	{
+		if (knight->isGoingBattle)
+		{
+			auto battlescene = BattleScene::createwithOriginalKnightAndLevel(knight,level);
+			Director::getInstance()->replaceScene(battlescene);
+			return;
+		}
 	}
 }
 
@@ -290,36 +580,57 @@ void BattleScene::initRoom()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	cntRoom = 0;
 
-	for (int y = 0; y < SIZEMTX; y++) 
-	{ 
-		for (int x = 0; x < SIZEMTX; x++) 
+	for (int y = 0; y < SIZEMTX; y++)
+	{
+		for (int x = 0; x < SIZEMTX; x++)
 		{
 			battleRoom[x][y] = nullptr;
 		}
 	}
-	srand((time(0)));
+
 
 	randomGenerate(SIZEMTX / 2, 1 + rand() % 3);
 
-	for (int y = 0; y < SIZEMTX; y++) 
+	for (int y = 0; y < SIZEMTX; y++)
 	{
-		for (int x = 0; x < SIZEMTX; x++) 
+		for (int x = 0; x < SIZEMTX; x++)
 		{
-			BattleRoom* curRoom = battleRoom[x][y];
-			if (curRoom == nullptr) continue;
-
-			curRoom->knight = knight;
-			curRoom->addMapElement();
-			memcpy(curRoom->visDirCpy, curRoom->visDir, sizeof(curRoom->visDir));
+			BattleRoom* Room = battleRoom[x][y];
+			if (Room == nullptr) continue;
+			else if (Room == beginRoom)
+				Room->roomType = BEGIN;
+			else if (Room == endRoom)
+			{
+				if ((level + 1 ) % 5 == 0)//notice
+					Room->roomType = BOSS;
+				else
+					Room->roomType = END;
+			}
+			else
+			{
+				int special;
+				special = rand() % 2;
+				if (special && !Type.empty())
+				{
+					special = rand() % Type.size();
+					Room->roomType = Type.at(special);
+					Type.erase(Type.begin() + special);
+				}
+				else
+					Room->roomType = NORMAL;
+			}
+			Room->knight = knight;
+			Room->sceneType = getSceneType();
+			Room->addMapElement();
+			memcpy(Room->visDirCpy, Room->visDir, sizeof(Room->visDir));
 		}
 	}
 }
-
 void BattleScene::randomGenerate(int stX, int stY) 
 {
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 
-	queue<BattleRoom*> q;
+	queue<BattleRoom*> roomQueue;
 
 	BattleRoom*& room = battleRoom[stX][stY]; // the pointer will be changed
 	room = BattleRoom::create();
@@ -329,22 +640,21 @@ void BattleScene::randomGenerate(int stX, int stY)
 	room->setCenter(visibleSize.width / 2, visibleSize.height / 2);
 	this->addChild(room, 0);
 
-	q.push(room);
+	roomQueue.push(room);
 	cntRoom++;
 
-	while (!q.empty()) 
+	while (!roomQueue.empty()) 
 	{
-		BattleRoom* curRoom = q.front();
-		q.pop();
+		BattleRoom* curRoom = roomQueue.front();
+		roomQueue.pop();
 		// getNextRoomDirection
-		getNextRoom(curRoom->x, curRoom->y, curRoom, q);
+		getNextRoom(curRoom->x, curRoom->y, curRoom, roomQueue);
 	}
 }
 
 void BattleScene::getNextRoom(int x, int y, BattleRoom* curRoom, queue<BattleRoom*>& q) 
 {
 	if (cntRoom >= MAXROOM) return;
-	srand(time(0));
 
 	vector<int> vecDir;  //save dirctions can go
 
@@ -361,6 +671,8 @@ void BattleScene::getNextRoom(int x, int y, BattleRoom* curRoom, queue<BattleRoo
 	if (vecDir.empty()) return;  //no dirction can go
 
 	int cntDirChosen = rand() % vecDir.size();
+	if (cntRoom <= 5 && cntDirChosen == 0)
+		cntDirChosen=1;
 	// randomly choose direction
 
 	for (int i = 0; i < cntDirChosen; i++)
@@ -395,6 +707,7 @@ void BattleScene::setHallWithWidth(Hall* hall, const BattleRoom* fromRoom,	const
 
 	hall->downRightX = nextRoom->centerX - FLOORWIDTH * (nextRoom->Width / 2 + 1);
 	hall->downRightY = nextRoom->centerY - FLOORHEIGHT * (SIZEHALL / 2 -1);
+	
 	hall->createMap();
 }
 
@@ -423,6 +736,7 @@ void BattleScene::connectRoom(BattleRoom* curRoom)
 
 		auto hall = Hall::create();
 		hall->knight = knight;
+		hall->sceneType = sceneType;
 		hall->dir = dir;
 
 		switch (dir) 

@@ -1,0 +1,2 @@
+enemy001 represent the melee enemy
+enemy002 represent the gun enemy

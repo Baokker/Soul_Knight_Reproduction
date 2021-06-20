@@ -14,7 +14,7 @@ class Hall : public MapRoom
 	friend class BattleScene;
 public:
 	bool init();
-	bool boundaryCheck(Knight* knight, int& ispeedX, int& ispeedY);
+	bool boundaryCheck(Knight* knight, float& ispeedX, float& ispeedY);
 private:
 protected:
 };

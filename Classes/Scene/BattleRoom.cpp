@@ -1,5 +1,7 @@
 #include "BattleRoom.h"
 #include "BattleScene.h"
+#include "Box/Box.h"
+#include "Actor/Enemy/Boss.h"
 
 void BattleRoom::setCenter(int X, int Y) { centerX = X, centerY = Y; }
 
@@ -54,7 +56,77 @@ void BattleRoom::createDoor(int X, int Y, int layer)
 	closedDoor.pushBack(doorClose);
 }
 
-void BattleRoom::addMapElement() {
+void BattleRoom::addMapElement() 
+{
+	if (roomType != NORMAL && roomType != END)
+	{
+		Width -= 6;
+		Height -= 6;
+		if (roomType == BOX)
+		{
+			box = Box::create();
+			box->setBindRoom(this);
+			box->setPosition(centerX, centerY);
+			this->addChild(box);
+			box->setGlobalZOrder(5);
+			if (box->proptype <= 2)
+			{
+				box->props[box->proptype]->setPosition(centerX, centerY);
+				this->addChild(box->props[box->proptype]);
+				box->props[box->proptype]->setGlobalZOrder(5);
+				box->props[box->proptype]->setVisible(false);
+			}
+			else
+			{
+				box->boxweapon->setPosition(centerX, centerY);
+				this->addChild(box->boxweapon);
+				box->boxweapon->setGlobalZOrder(5);
+				box->boxweapon->setVisible(false);
+			}
+
+		}
+		else if (roomType == STATUE)
+		{
+			statue = Statue::create();
+			statue->setPosition(centerX, centerY);
+			this->addChild(statue);
+			statue->setGlobalZOrder(5);
+		}
+		else if (roomType == BEGIN)
+		{
+			store = Store::create();
+			store->setBindRoom(this);
+			store->setPosition(centerX - 150, centerY + 120);
+			store->setGlobalZOrder(5);
+			this->addChild(store);
+			if (store->goodstype <= 1)
+			{
+				store->goods[store->goodstype]->setPosition(centerX - 150, centerY + 60);
+				store->goods[store->goodstype]->setGlobalZOrder(5);
+				store->goods[store->goodstype]->setVisible(false);
+				this->addChild(store->goods[store->goodstype]);
+			}
+			else
+			{
+				store->storeweapon->setPosition(centerX - 150, centerY + 60);
+				this->addChild(store->storeweapon);
+				store->storeweapon->setGlobalZOrder(5);
+				store->storeweapon->setVisible(false);
+			}
+		}
+		if (roomType == BOSS)
+		{
+			Width += 6;
+			Height += 6;
+			boss = Boss::create();
+			boss->setBindRoom(this);
+			boss->setPosition(centerX, centerY);
+			this->addChild(boss);
+			addChild(boss->GetWeapon(), 4);
+			boss->setGlobalZOrder(5);
+			vecEnemy.pushBack(boss);
+		}
+	}
 	const int X = centerX - FLOORWIDTH * (Width / 2);
 	const int Y = centerY + FLOORHEIGHT * (Height / 2);
 	//(X, Y) is upLeft Position;
@@ -108,7 +180,71 @@ void BattleRoom::addMapElement() {
 		}
 		curX = X, curY -= FLOORHEIGHT;
 	}
+	if (roomType == END)
+	{
+		Sprite* portal = Sprite::create("Map//portal.png");
+		endPortal = portal;
+		portal->setPosition(centerX, centerY);
+		addChild(portal);
+		portal->setGlobalZOrder(5);
+	}
 }
+
+void BattleRoom::setGunEnemy(GunEnemy* enemy,int X,int Y)
+{
+	//vecEnemy.pushBack(enemy);
+	addChild(enemy);
+	enemy->setGlobalZOrder(6);
+	addChild(enemy->GetWeapon());
+	enemy->GetWeapon()->setGlobalZOrder(6);
+	enemy->setPosition(X, Y);
+	//enemy->setPosition(X, Y);
+}
+
+void BattleRoom::setMeleeEnemy(MeleeEnemy* enemy, int X, int Y)
+{
+	//vecEnemy.pushBack(enemy);
+	addChild(enemy);
+	enemy->setGlobalZOrder(6);
+	addChild(enemy->GetWeapon());
+	enemy->GetWeapon()->setGlobalZOrder(6);
+	enemy->setPosition(X, Y);
+	//enemy->setPosition(X, Y);
+}
+
+void BattleRoom::addEnemy()
+{
+	//srand(time(NULL));
+	for (int i = 0; i < 5; i++)
+	{
+		int type;
+		type = rand() % 2;		//1 for gun,0 for melee
+		if (type)
+		{
+			auto gunenemy = GunEnemy::create(sceneType);
+			gunenemy->bindRoom = this;
+			vecEnemy.pushBack(gunenemy);
+			vecGunEnemy.pushBack(gunenemy);
+		}
+		else
+		{
+			auto meleeenemy = MeleeEnemy::create(sceneType);
+			meleeenemy->bindRoom = this;
+			vecEnemy.pushBack(meleeenemy);
+			vecMeleeEnemy.pushBack(meleeenemy);
+			//setEnemy(enemy, rand() % (downRightX - upLeftX + 1) + upLeftX, rand() % (upLeftY - downRightY + 1) + downRightY);
+		}
+	}
+	for (auto gunenemy : vecGunEnemy)
+	{
+		setGunEnemy(gunenemy, rand() % (downRightX - upLeftX + 1) + upLeftX, rand() % (upLeftY - downRightY + 1) + downRightY);
+	}
+	for (auto meleeenemy : vecMeleeEnemy)
+	{
+		setMeleeEnemy(meleeenemy, rand() % (downRightX - upLeftX + 1) + upLeftX, rand() % (upLeftY - downRightY + 1) + downRightY);
+	}
+}
+
 void BattleRoom::closeDoor() 
 {
 	doorOpen = false;
@@ -137,45 +273,56 @@ void BattleRoom::openDoor()
 	}
 }
 
-bool BattleRoom::boundaryCheck(Node* knight, int& ispeedX, int& ispeedY) 
+bool BattleRoom::boundaryCheck(Node* node, float& ispeedX, float& ispeedY) 
 {
-	int knightX = knight->getPositionX();
-	int knightY = knight->getPositionY();
+	int nodeX = node->getPositionX();
+	int nodeY = node->getPositionY();
 
-	if (knightX >= upLeftX - FLOORWIDTH && knightX <= downRightX + FLOORWIDTH && knightY <= upLeftY + FLOORHEIGHT && knightY >= downRightY - FLOORHEIGHT) 
+	if (nodeX >= upLeftX - FLOORWIDTH && nodeX <= downRightX + FLOORWIDTH && nodeY <= upLeftY + FLOORHEIGHT && nodeY >= downRightY - FLOORHEIGHT) 
 	{
 		if (doorOpen)
 		{
-			if (((upLeftY + FLOORHEIGHT / 2 - FLOORHEIGHT * (Height / 2 - 3)) >= knightY && knightY >= (downRightY + FLOORHEIGHT * (Height / 2 - 3))))  //check the door
+			if (((upLeftY + FLOORHEIGHT / 2 - FLOORHEIGHT * (Height / 2 - 3)) >= nodeY && nodeY >= (downRightY + FLOORHEIGHT * (Height / 2 - 3))))  //check the door
 			{
-				if (ispeedX > 0 && knightX >= downRightX && !visDir[RIGHT])
+				if (ispeedX > 0 && nodeX >= downRightX && !visDir[RIGHT])
 					ispeedX = 0;
-				if (ispeedX < 0 && knightX <= upLeftX && !visDir[LEFT])
+				if (ispeedX < 0 && nodeX <= upLeftX && !visDir[LEFT])
 					ispeedX = 0;
 			}
-			else if (upLeftX + FLOORHEIGHT * (Height / 2 - 3) <= knightX && knightX <= downRightX - FLOORHEIGHT * (Height / 2 - 3))
+			else if (upLeftX + FLOORHEIGHT * (Height / 2 - 3) <= nodeX && nodeX <= downRightX - FLOORHEIGHT * (Height / 2 - 3))
 			{
-				if (ispeedY > 0 && knightY >= upLeftY + FLOORHEIGHT / 2 && !visDir[UP])
+				if (ispeedY > 0 && nodeY >= upLeftY + FLOORHEIGHT / 2 && !visDir[UP])
 					ispeedY = 0;
-				if (ispeedY < 0 && knightY <= downRightY && !visDir[DOWN])
+				if (ispeedY < 0 && nodeY <= downRightY && !visDir[DOWN])
 					ispeedY = 0;
 			}
 			else
 			{
-				if (ispeedX > 0 && knightX >= downRightX) ispeedX = 0;
-				if (ispeedX < 0 && knightX <= upLeftX) ispeedX = 0;
-				if (ispeedY > 0 && knightY >= upLeftY) ispeedY = 0;
-				if (ispeedY < 0 && knightY <= downRightY) ispeedY = 0;
+				if (ispeedX > 0 && nodeX >= downRightX) ispeedX = 0;
+				if (ispeedX < 0 && nodeX <= upLeftX) ispeedX = 0;
+				if (ispeedY > 0 && nodeY >= upLeftY) ispeedY = 0;
+				if (ispeedY < 0 && nodeY <= downRightY) ispeedY = 0;
 			}
 		}
 		else 
 		{
-			if (ispeedX > 0 && knightX >= downRightX) ispeedX = 0;
-			if (ispeedX < 0 && knightX <= upLeftX) ispeedX = 0;
-			if (ispeedY > 0 && knightY >= upLeftY) ispeedY = 0;
-			if (ispeedY < 0 && knightY <= downRightY) ispeedY = 0;
+			if (ispeedX > 0 && nodeX >= downRightX) ispeedX = 0;
+			if (ispeedX < 0 && nodeX <= upLeftX) ispeedX = 0;
+			if (ispeedY > 0 && nodeY >= upLeftY) ispeedY = 0;
+			if (ispeedY < 0 && nodeY <= downRightY) ispeedY = 0;
 		}
 		return true;
 	}
 	return false;
+}
+
+bool BattleRoom::allKilled()
+{
+	if(!vecEnemy.empty())
+		for (auto enemy : vecEnemy)
+		{
+			if (!(enemy->CheckifDie()))
+				return false;
+		}
+	return true;
 }

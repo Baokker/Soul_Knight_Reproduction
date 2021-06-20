@@ -9,6 +9,7 @@
 #define __ACTOR_H__
 
 #include<cocos2d.h>
+#include<string>
 #include"..\Const.h"
 #include"Weapon/Weapon.h"
 #include"Bullet/Bullet.h"

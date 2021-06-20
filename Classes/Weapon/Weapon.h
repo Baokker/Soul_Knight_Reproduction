@@ -14,6 +14,7 @@
 #include<vector>
 
 USING_NS_CC;
+using std::string;
 
 class Weapon :public Sprite
 {
@@ -38,9 +39,26 @@ class Weapon :public Sprite
 		int GetType();
 		void Setdamage(int num);
 		void SetType(int num);
+
+		void initCheckCD();
+
+		bool CheckifCanAttack();
+
+		int GetCurtime();
+		void SetCurtime(int num);
+
+		int GetconsumeMP();
+		void SetconsumeMP(int num);
+
+		int GetCD();
+		void SetCD(int num);//frames!
+
 	private:
 		int Type = isGun;//default,can set it in inheritance
 		int damage = 0;
+		int CD = 30;
+		int Curtime = 0;
+		int consumeMP = 0;
 };
 
 class Gun :public Weapon
@@ -65,13 +83,18 @@ public:
 	void SetBulletspeed(int num);
 	int GetMeleeDamage();
 	void SetMeleeDamage(int num);
+
+	string GetBulletPath();
+	void SetBulletPath(string path);
+
 	Rect Attack();//the gun should also have melee function but with lower damages
 private:
+	string BulletPath = "Bullet\\Bullet1.png";
 	int Bulletspeed = 10;
 	int MeleeDamage = 4;
 };
 
-class FireGun:public Gun
+class EnemyGun :public Gun
 {
 	friend class Actor;
 
@@ -83,13 +106,118 @@ class FireGun:public Gun
 
 	friend class SafeScene;
 	friend class BattleScene;
+
 public:
 	bool init();
 	void Shoot(Bullet* bullet);
-	CREATE_FUNC_WITH_FILE(FireGun);//for creating specific weapon
-	//CREATE_FUNC_WITH_DEFAULT_FILE(Weapon, "Weapon\\Pistol.png");//for knight
+	CREATE_FUNC_WITH_FILE(EnemyGun);
+	CREATE_FUNC(EnemyGun);
 
-private:
+};
+
+class SubmachineGun :public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(SubmachineGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(SubmachineGun, "Weapon\\SubmachineGun.png");
+
+};
+
+class FishGun :public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(FishGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(FishGun, "Weapon\\FishGun.png");
+
+};
+
+class ShotGun :public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(ShotGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(ShotGun, "Weapon\\shotgun.png");
+
+};
+
+class LaserGun :public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(LaserGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(LaserGun, "Weapon\\LaserGun.png");
+
+};
+
+class MagicGun :public Gun
+{
+	friend class Actor;
+
+	friend class Knight;
+
+	friend class Enemy;
+	friend class GunEnemy;
+	friend class MeleeEnemy;
+
+	friend class SafeScene;
+	friend class BattleScene;
+
+public:
+	bool init();
+	void Shoot(Bullet* bullet);
+	CREATE_FUNC_WITH_FILE(MagicGun);
+	CREATE_FUNC_WITH_DEFAULT_FILE(MagicGun, "Weapon\\MagicGun.png");
+
 };
 
 class Melee :public Weapon

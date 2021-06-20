@@ -6,14 +6,30 @@
 */
 
 #include"Bullet.h"
-#include"cocos2d.h"
-#include"Const.h"
-
-USING_NS_CC;
 
 static void ProblemLoading(const char* filename)
 {
 	log("Error while loading:%s\n", filename);
+}
+
+bool Bullet::GetisUseless()
+{
+	return isUseless;
+}
+
+void Bullet::SetisUseless(bool flag)
+{
+	isUseless = flag;
+}
+
+int Bullet::getOwner()
+{
+	return Owner;
+}
+
+void Bullet::setOwner(int owner)
+{
+	Owner = owner;
 }
 
 bool Bullet::init()
@@ -40,4 +56,44 @@ bool Bullet::init()
 	schedule(Disappear, FPS, "Disappear");
 
 	return true;
+}
+
+int Bullet::Getdamage()
+{
+	return damage;
+}
+
+void Bullet::Setdamage(int num)
+{
+	damage = num;
+}
+
+int Bullet::GetMoveSpeed()
+{
+	return MoveSpeed;
+}
+
+void Bullet::SetMoveSpeed(int num)
+{
+	MoveSpeed = num;
+}
+
+int Bullet::GetMoveSpeedX()
+{
+	return MoveSpeedX;
+}
+
+void Bullet::SetMoveSpeedX(int num)
+{
+	MoveSpeedX = num;
+}
+
+int Bullet::GetMoveSpeedY()
+{
+	return MoveSpeedY;
+}
+
+void Bullet::SetMoveSpeedY(int num)
+{
+	MoveSpeedY = num;
 }

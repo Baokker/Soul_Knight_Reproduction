@@ -1,6 +1,8 @@
 #include"SetScene.h"
 
 int SetScene::present = 50;
+bool SetScene::Soundeffect = true;
+bool SetScene::buttonchange = true;
 
 Scene* SetScene::CreateScene()
 {
@@ -36,7 +38,7 @@ bool SetScene::init()
 	//set_music_lab
 
 	auto bkMusicLab = Label::createWithTTF("Background Music : ", "fonts/arial.ttf", 50);
-	bkMusicLab->setPosition(600, 440);
+	bkMusicLab->setPosition(600, 540);
 	this->addChild(bkMusicLab, 1);
 
 	auto volumelab = Label::createWithTTF("Volume : ", "fonts/arial.ttf", 50);
@@ -48,6 +50,9 @@ bool SetScene::init()
 		this->addChild(volumelab, 1);
 	}
 
+	auto SoundeffectLab = Label::createWithTTF("Sound effect  :", "fonts/arial.ttf", 50);
+	SoundeffectLab->setPosition(530, 440);
+	this->addChild(SoundeffectLab, 1);
 
 	//set_exit
 	auto exitImg = MenuItemImage::create("menu//exit.png", "menu//exit01.png", CC_CALLBACK_1(SetScene::menuCloseCallbackEnd, this));
@@ -56,14 +61,14 @@ bool SetScene::init()
 	exitmenu->setPosition(Vec2(visibleSize.width - 80, visibleSize.height - 100));
 	this->addChild(exitmenu, 1);
 
-	//set_music_button
+	//set_music_button_lab
 	auto changeLabOn = Label::createWithTTF("ON", "fonts/arial.ttf", 24);
 	auto changeLabOff = Label::createWithTTF("OFF", "fonts/arial.ttf", 24);
 	if (changeLabOn == nullptr)
 		problemLoading("fonts/arial.ttf");
 	else
 	{
-		changeLabOn->setPosition(Point(1000, 440));
+		changeLabOn->setPosition(Point(1000, 540));
 		changeLabOn->setColor(Color3B(0, 0, 255));
 		this->addChild(changeLabOn, 2);
 	}
@@ -71,14 +76,36 @@ bool SetScene::init()
 		problemLoading("fonts/arial.ttf");
 	else
 	{
-		changeLabOff->setPosition(Point(900, 440));
+		changeLabOff->setPosition(Point(900, 540));
 		changeLabOff->setColor(Color3B(0, 0, 255));
 		this->addChild(changeLabOff, 2);
 	}
 
-	auto button1 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
+	auto changeLabOn1 = Label::createWithTTF("ON", "fonts/arial.ttf", 24);
+	auto changeLabOff1 = Label::createWithTTF("OFF", "fonts/arial.ttf", 24);
+	if (changeLabOn1 == nullptr)
+		problemLoading("fonts/arial.ttf");
+	else
+	{
+		changeLabOn1->setPosition(Point(1000, 440));
+		changeLabOn1->setColor(Color3B(255, 0, 0));
+		this->addChild(changeLabOn1, 2);
+	}
+	if (changeLabOff1 == nullptr)
+		problemLoading("fonts/arial.ttf");
+	else
+	{
+		changeLabOff1->setPosition(Point(900, 440));
+		changeLabOff1->setColor(Color3B(255, 0, 0));
+		this->addChild(changeLabOff1, 2);
+	}
+	//set_music_button
+
+	button1 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
 	button1->setTitleText("Button");
-	button1->setPosition(Point(900, 440));
+	button1->setPosition(Point(900, 540));
+	if (!buttonchange)
+		button1->setColor(Color3B(0, 255, 0));
 	button1->addTouchEventListener([&](Ref* sender, Widget::TouchEventType type) {
 		switch (type)
 		{
@@ -86,6 +113,12 @@ bool SetScene::init()
 			break;
 		case ui::Widget::TouchEventType::ENDED:
 			AudioEngine::pause(audioID);
+			buttonchange = false;
+			if (!buttonchange)
+			{
+				button1->setColor(Color3B(0, 255, 0));
+				button2->setColor(Color3B(255, 255, 255));
+			}
 			break;
 		default:
 			break;
@@ -93,9 +126,11 @@ bool SetScene::init()
 		});
 	this->addChild(button1, 1);
 
-	auto button2 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
+	button2 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
 	button2->setTitleText("Button");
-	button2->setPosition(Point(1000, 440));
+	button2->setPosition(Point(1000, 540));
+	if (buttonchange)
+		button2->setColor(Color3B(0, 255, 0));
 	button2->addTouchEventListener([&](Ref* sender, Widget::TouchEventType type) {
 		switch (type)
 		{
@@ -103,6 +138,12 @@ bool SetScene::init()
 			break;
 		case ui::Widget::TouchEventType::ENDED:
 			AudioEngine::resume(audioID);
+			buttonchange = true;
+			if (buttonchange)
+			{
+				button2->setColor(Color3B(0, 255, 0));
+				button1->setColor(Color3B(255, 255, 255));
+			}
 			break;
 		default:
 			break;
@@ -110,6 +151,53 @@ bool SetScene::init()
 		});
 	this->addChild(button2, 1);
 
+	button3 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
+	button3->setTitleText("Button");
+	button3->setPosition(Point(900, 440));
+	if (!Soundeffect)
+		button3->setColor(Color3B(0, 255, 0));
+	button3->addTouchEventListener([&](Ref* sender, Widget::TouchEventType type) {
+		switch (type)
+		{
+		case ui::Widget::TouchEventType::BEGAN:
+			break;
+		case ui::Widget::TouchEventType::ENDED:
+			Soundeffect = false;
+			if (!Soundeffect)
+			{
+				button3->setColor(Color3B(0, 255, 0));
+				button4->setColor(Color3B(255, 255, 255));
+			}
+			break;
+		default:
+			break;
+		}
+		});
+	this->addChild(button3, 1);
+
+	button4 = Button::create("menu\\Button_Normal.png", "menu\\Button_Press.png", "menu\\Button_Disable.png");
+	button4->setTitleText("Button");
+	button4->setPosition(Point(1000, 440));
+	if (Soundeffect)
+		button4->setColor(Color3B(0, 255, 0));
+	button4->addTouchEventListener([&](Ref* sender, Widget::TouchEventType type) {
+		switch (type)
+		{
+		case ui::Widget::TouchEventType::BEGAN:
+			break;
+		case ui::Widget::TouchEventType::ENDED:
+			Soundeffect = true;
+			if (Soundeffect)
+			{
+				button4->setColor(Color3B(0, 255, 0));
+				button3->setColor(Color3B(255, 255, 255));
+			}
+			break;
+		default:
+			break;
+		}
+		});
+	this->addChild(button4, 1);
 	//set_vulume_slider
 
 	slider = Slider::create();
@@ -137,5 +225,10 @@ bool SetScene::init()
 
 void SetScene::menuCloseCallbackEnd(Ref* pSender)
 {
+	if (Soundeffect)
+	{
+		auto audiobutton = AudioEngine::play2d("music\\button.mp3", false);
+		AudioEngine::setVolume(audiobutton, present / 100.0f);
+	};
 	Director::getInstance()->popScene();
 }
