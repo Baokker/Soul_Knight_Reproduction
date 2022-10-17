@@ -20,7 +20,7 @@ the end-of-semester project for Software Engineer Programming Course 2021
      cmake .. -G"Visual Studio 16 2019" -A Win32
      ```
 
-  4. 从[此处][https://github.com/Baokker/Soul_Knight_Reproduction]下载源码，将Classes和Resources文件夹替换
+  4. 从[此处](https://github.com/Baokker/Soul_Knight_Reproduction)下载源码，将Classes和Resources文件夹替换
 
   5. 用vs打开win32-build中的sln文件，__设为启动项目__，然后运行
 
